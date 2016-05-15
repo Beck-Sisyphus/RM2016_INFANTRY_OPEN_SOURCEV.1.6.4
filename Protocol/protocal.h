@@ -6,14 +6,14 @@
 #define PROTOCAL_FRAME_MAX_SIZE  256
 // Protocal Version
 #define PROTOCAL_HEADER                                             0x5A
-#define CMD_ID_SENSOR_INFO   									    0x40			//´«¸ĞÆ÷Êı¾İ·¢ËÍID
-#define CMD_ID_IMU_INFO												0X41			//×ËÌ¬½áËã½Ç¶È·¢ËÍID
-#define CMD_ID_MAG_CALI												0X42     //´ÅÁ¦¼ÆĞ£×¼Êı¾İ·¢ËÍID
-#define CMD_ID_SENSOR_CALI         						            0x43			//½ÓÊÕĞ£×¼ÃüÁîID
-#define CMD_ID_UPLOAD_CALI_INFO								        0x44      //·¢ËÍflashÖĞ¼ÇÂ¼µÄĞ£×¼Êı¾İ
-#define CMD_ID_VERSION												0x45			//»úÆ÷ÈË¹Ì¼ş°æ±¾ºÅÉÏ´«
-#define CMD_ID_RROBOT_ERROR									       	0x46      //»úÆ÷ÈË´íÎó´úÂëÉÏ´«
-#define CMD_ID_PID_CALI												0x47      		//ÔÆÌ¨PID²ÎÊıĞ£×¼Öµ
+#define CMD_ID_SENSOR_INFO   									    0x40			//ä¼ æ„Ÿå™¨æ•°æ®å‘é€ID
+#define CMD_ID_IMU_INFO												0X41			//å§¿æ€ç»“ç®—è§’åº¦å‘é€ID
+#define CMD_ID_MAG_CALI												0X42     //ç£åŠ›è®¡æ ¡å‡†æ•°æ®å‘é€ID
+#define CMD_ID_SENSOR_CALI         						            0x43			//æ¥æ”¶æ ¡å‡†å‘½ä»¤ID
+#define CMD_ID_UPLOAD_CALI_INFO								        0x44      //å‘é€flashä¸­è®°å½•çš„æ ¡å‡†æ•°æ®
+#define CMD_ID_VERSION												0x45			//æœºå™¨äººå›ºä»¶ç‰ˆæœ¬å·ä¸Šä¼ 
+#define CMD_ID_RROBOT_ERROR									       	0x46      //æœºå™¨äººé”™è¯¯ä»£ç ä¸Šä¼ 
+#define CMD_ID_PID_CALI												0x47      		//äº‘å°PIDå‚æ•°æ ¡å‡†å€¼
 #define CMD_ID_PID_UPLOAD											0x48
 
 /***************************************Cali_Type***********************************************/
@@ -34,13 +34,13 @@
 #pragma pack(1)
 typedef struct Sensor_Data
 {
-	int16_t ax:16;		//¼ÓËÙ¶È¼Æ
+	int16_t ax:16;		//åŠ é€Ÿåº¦è®¡
 	int16_t ay:16;
 	int16_t az:16;
-	int16_t gx:16;		//ÍÓÂİÒÇ
+	int16_t gx:16;		//é™€èºä»ª
 	int16_t gy:16;
 	int16_t gz:16;
-	int16_t mx:16;		//´ÅÁ¦¼Æ
+	int16_t mx:16;		//ç£åŠ›è®¡
 	int16_t my:16;
 	int16_t mz:16;
 }Sensor_Data;
@@ -49,17 +49,17 @@ typedef struct Sensor_Data
 #pragma pack(1)
 typedef struct IMU_Angle
 {
-	int16_t pitch:16;		//×ËÌ¬½áËã½Ç¶È
+	int16_t pitch:16;		//å§¿æ€ç»“ç®—è§’åº¦
 	int16_t yaw:16;
 	int16_t roll:16;
-	int16_t pitch_encoder:16;     //ÂëÅÌÊı¾İ
+	int16_t pitch_encoder:16;     //ç ç›˜æ•°æ®
 	int16_t yaw_encoder:16;
 	int16_t shoot_encoder:16;
 }IMU_Angle;
 
 //cmd_id = 0x42
-#pragma pack(1)     //×Ö½Ú¶ÔÆë·½Ê½
-typedef struct Mag_Calc_Data     //´ÅÁ¦¼ÆĞ£×¼Êı¾İ
+#pragma pack(1)     //å­—èŠ‚å¯¹é½æ–¹å¼
+typedef struct Mag_Calc_Data     //ç£åŠ›è®¡æ ¡å‡†æ•°æ®
 {
 	int16_t hmc_max_x:16;
 	int16_t hmc_max_y:16;
@@ -71,9 +71,9 @@ typedef struct Mag_Calc_Data     //´ÅÁ¦¼ÆĞ£×¼Êı¾İ
 
 //cmd_id 0x44
 #pragma pack(1)
-typedef struct Cali_Info  //Ğ£×¼Êı¾İ
+typedef struct Cali_Info  //æ ¡å‡†æ•°æ®
 {
-	int8_t error_code;   //´íÎó´úÂë£¬0£ºÕı³££¬1£ºÍÓÂİÒÇ´íÎó ´ÅÁ¦¼Æ´íÎó£»2:±àÂëÆ÷´íÎó
+	int8_t error_code;   //é”™è¯¯ä»£ç ï¼Œ0ï¼šæ­£å¸¸ï¼Œ1ï¼šé™€èºä»ªé”™è¯¯ ç£åŠ›è®¡é”™è¯¯ï¼›2:ç¼–ç å™¨é”™è¯¯
 	int16_t gx_offset:16;
 	int16_t gy_offset:16;
 	int16_t gz_offset:16;
@@ -86,23 +86,23 @@ typedef struct Cali_Info  //Ğ£×¼Êı¾İ
 
 //cmd_id 0x43
 #pragma pack(1)
-typedef struct CALI_CMD  //Ğ£×¼Ö¡ÖĞ½ÓÊÕµ½µÄĞ£×¼ÃüÁî£¬ÊµÎªÆäÖĞµÄÒ»¸ö×Ö½Ú
+typedef struct CALI_CMD  //æ ¡å‡†å¸§ä¸­æ¥æ”¶åˆ°çš„æ ¡å‡†å‘½ä»¤ï¼Œå®ä¸ºå…¶ä¸­çš„ä¸€ä¸ªå­—èŠ‚
 {
 	int8_t type;
-	
+
 }CALI_CMD;
 
 #pragma pack(1)
-typedef struct  IsCaliedInfo        //·¢ËÍ½ÓÊÕµ½°´¼üºóµÄÈ·ÈÏĞ£×¼ĞÅÏ¢
+typedef struct  IsCaliedInfo        //å‘é€æ¥æ”¶åˆ°æŒ‰é”®åçš„ç¡®è®¤æ ¡å‡†ä¿¡æ¯
 {
 	int8_t error_code;
 	int8_t cali_cmd;
 }IsCaliedInfo;
 
 #pragma pack(1)
-typedef struct VersionInfo        //Èí¼ş°æ±¾ĞÅÏ¢
+typedef struct VersionInfo        //è½¯ä»¶ç‰ˆæœ¬ä¿¡æ¯
 {
-	int8_t num[4];	
+	int8_t num[4];
 }VersionInfo;
 
 #pragma pack(1)
@@ -111,15 +111,15 @@ typedef struct PID_OFFSET_DATA
 	int16_t pitch_position_kp;
 	int16_t pitch_position_ki;
 	int16_t pitch_position_kd;
-	
+
 	int16_t pitch_speed_kp;
 	int16_t pitch_speed_ki;
 	int16_t pitch_speed_kd;
-	
+
 	int16_t yaw_position_kp;
 	int16_t yaw_position_ki;
 	int16_t yaw_position_kd;
-	
+
 	int16_t yaw_speed_kp;
 	int16_t yaw_speed_ki;
 	int16_t yaw_speed_kd;
@@ -144,7 +144,7 @@ void *GetFrameDataAddress(void * buf);
 uint8_t FrameUnpack(uint8_t token, uint8_t* pBuffer);
 uint8_t FramePack(uint8_t* pDataIn, uint8_t len, uint8_t* pDataOut);
 
-//·¢ËÍÏà¹Øº¯Êı
+//å‘é€ç›¸å…³å‡½æ•°
 void UploadParameter(void);
 void PID_Paremeter_Send(float pp_kp, float pp_ki,float pp_kd, float ps_kp, float ps_ki,float ps_kd, float yp_kp, float yp_ki, float yp_kd, float ys_kp, float ys_ki, float ys_kd);
 void Version_Send(uint32_t ver);
@@ -155,7 +155,7 @@ void Mag_Cali_Info_Send(int16_t max_x,int16_t max_y,int16_t max_z,int16_t min_x,
 void UART3_ReportIMU(int16_t yaw,int16_t pitch,int16_t roll,int16_t alt,int16_t tempr,int16_t press,int16_t IMUpersec);
 void Sensor_Info_Send(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,int16_t hx,int16_t hy,int16_t hz);
 void UART3_ReportMotion(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz,int16_t hx,int16_t hy,int16_t hz);
-void IMU_Info_Send(int16_t yaw, int16_t pitch, int16_t roll, int16_t yaw_encoder, int16_t pitch_encoder, int16_t shoot_encoder);  
+void IMU_Info_Send(int16_t yaw, int16_t pitch, int16_t roll, int16_t yaw_encoder, int16_t pitch_encoder, int16_t shoot_encoder);
 void Offset_Info_Send(int8_t error_code,int16_t gx_offset,int16_t gy_offset,int16_t gz_offset, int16_t hx_offset,int16_t hy_offset,
 	int16_t hz_offset,int16_t yaw_encoder_offset,int16_t pitch_encoder_offset);
 

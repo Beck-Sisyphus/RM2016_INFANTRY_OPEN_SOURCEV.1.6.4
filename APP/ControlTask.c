@@ -1,11 +1,11 @@
 #include "main.h"
 
-PID_Regulator_t GMPPositionPID = GIMBAL_MOTOR_PITCH_POSITION_PID_DEFAULT;     
+PID_Regulator_t GMPPositionPID = GIMBAL_MOTOR_PITCH_POSITION_PID_DEFAULT;
 PID_Regulator_t GMPSpeedPID = GIMBAL_MOTOR_PITCH_SPEED_PID_DEFAULT;
-PID_Regulator_t GMYPositionPID = GIMBAL_MOTOR_YAW_POSITION_PID_DEFAULT;			
+PID_Regulator_t GMYPositionPID = GIMBAL_MOTOR_YAW_POSITION_PID_DEFAULT;
 PID_Regulator_t GMYSpeedPID = GIMBAL_MOTOR_YAW_SPEED_PID_DEFAULT;
 
-PID_Regulator_t CMRotatePID = CHASSIS_MOTOR_ROTATE_PID_DEFAULT; 
+PID_Regulator_t CMRotatePID = CHASSIS_MOTOR_ROTATE_PID_DEFAULT;
 PID_Regulator_t CM1SpeedPID = CHASSIS_MOTOR_SPEED_PID_DEFAULT;
 PID_Regulator_t CM2SpeedPID = CHASSIS_MOTOR_SPEED_PID_DEFAULT;
 PID_Regulator_t CM3SpeedPID = CHASSIS_MOTOR_SPEED_PID_DEFAULT;
@@ -19,10 +19,10 @@ WorkState_e lastWorkState = PREPARE_STATE;
 WorkState_e workState = PREPARE_STATE;
 RampGen_t GMPitchRamp = RAMP_GEN_DAFAULT;
 RampGen_t GMYawRamp = RAMP_GEN_DAFAULT;
-	
+
 /*
 *********************************************************************************************************
-*                                            FUNCTIONS 
+*                                            FUNCTIONS
 *********************************************************************************************************
 */
 
@@ -35,28 +35,28 @@ WorkState_e GetWorkState()
 {
 	return workState;
 }
-//µ×ÅÌ¿ØÖÆÈÎÎñ
+//åº•ç›˜æ§åˆ¶ä»»åŠ¡
 void CMControlLoop(void)
-{  
-	//µ×ÅÌĞı×ªÁ¿¼ÆËã
-	if(GetWorkState()==PREPARE_STATE) //Æô¶¯½×¶Î£¬µ×ÅÌ²»Ğı×ª
+{
+	//åº•ç›˜æ—‹è½¬é‡è®¡ç®—
+	if(GetWorkState()==PREPARE_STATE) //å¯åŠ¨é˜¶æ®µï¼Œåº•ç›˜ä¸æ—‹è½¬
 	{
-		ChassisSpeedRef.rotate_ref = 0;	 
+		ChassisSpeedRef.rotate_ref = 0;
 	}
 	else
 	{
-		 //µ×ÅÌ¸úËæ±àÂëÆ÷Ğı×ªPID¼ÆËã
+		 //åº•ç›˜è·Ÿéšç¼–ç å™¨æ—‹è½¬PIDè®¡ç®—
 		 CMRotatePID.ref = 0;
 		 CMRotatePID.fdb = GMYawEncoder.ecd_angle;
-		 CMRotatePID.Calc(&CMRotatePID);   
+		 CMRotatePID.Calc(&CMRotatePID);
 		 ChassisSpeedRef.rotate_ref = CMRotatePID.output;
 	}
-	if(Is_Lost_Error_Set(LOST_ERROR_RC))      //Èç¹ûÒ£¿ØÆ÷¶ªÊ§£¬Ç¿ÖÆ½«ËÙ¶ÈÉè¶¨Öµreset
+	if(Is_Lost_Error_Set(LOST_ERROR_RC))      //å¦‚æœé¥æ§å™¨ä¸¢å¤±ï¼Œå¼ºåˆ¶å°†é€Ÿåº¦è®¾å®šå€¼reset
 	{
 		ChassisSpeedRef.forward_back_ref = 0;
 		ChassisSpeedRef.left_right_ref = 0;
 	}
-	
+
 	CM1SpeedPID.ref =  -ChassisSpeedRef.forward_back_ref*0.075 + ChassisSpeedRef.left_right_ref*0.075 + ChassisSpeedRef.rotate_ref;
 	CM2SpeedPID.ref = ChassisSpeedRef.forward_back_ref*0.075 + ChassisSpeedRef.left_right_ref*0.075 + ChassisSpeedRef.rotate_ref;
 	CM3SpeedPID.ref = ChassisSpeedRef.forward_back_ref*0.075 - ChassisSpeedRef.left_right_ref*0.075 + ChassisSpeedRef.rotate_ref;
@@ -66,75 +66,75 @@ void CMControlLoop(void)
 	CM2SpeedPID.fdb = CM2Encoder.filter_rate;
 	CM3SpeedPID.fdb = CM3Encoder.filter_rate;
 	CM4SpeedPID.fdb = CM4Encoder.filter_rate;
-	
+
 	CM1SpeedPID.Calc(&CM1SpeedPID);
 	CM2SpeedPID.Calc(&CM2SpeedPID);
 	CM3SpeedPID.Calc(&CM3SpeedPID);
 	CM4SpeedPID.Calc(&CM4SpeedPID);
-	
-	 if((GetWorkState() == STOP_STATE) ||Is_Serious_Error() || GetWorkState() == CALI_STATE || GetWorkState() == PREPARE_STATE)    //|| dead_lock_flag == 1½ô¼±Í£³µ£¬±àÂëÆ÷Ğ£×¼£¬ÎŞ¿ØÖÆÊäÈëÊ±¶¼»áÊ¹µ×ÅÌ¿ØÖÆÍ£Ö¹
+
+	 if((GetWorkState() == STOP_STATE) ||Is_Serious_Error() || GetWorkState() == CALI_STATE || GetWorkState() == PREPARE_STATE)    //|| dead_lock_flag == 1ç´§æ€¥åœè½¦ï¼Œç¼–ç å™¨æ ¡å‡†ï¼Œæ— æ§åˆ¶è¾“å…¥æ—¶éƒ½ä¼šä½¿åº•ç›˜æ§åˆ¶åœæ­¢
 	 {
 		 Set_CM_Speed(CAN2, 0,0,0,0);
 	 }
 	 else
 	 {
-		 Set_CM_Speed(CAN2, CHASSIS_SPEED_ATTENUATION * CM1SpeedPID.output, CHASSIS_SPEED_ATTENUATION * CM2SpeedPID.output, CHASSIS_SPEED_ATTENUATION * CM3SpeedPID.output, CHASSIS_SPEED_ATTENUATION * CM4SpeedPID.output);		 
-	 } 
+		 Set_CM_Speed(CAN2, CHASSIS_SPEED_ATTENUATION * CM1SpeedPID.output, CHASSIS_SPEED_ATTENUATION * CM2SpeedPID.output, CHASSIS_SPEED_ATTENUATION * CM3SpeedPID.output, CHASSIS_SPEED_ATTENUATION * CM4SpeedPID.output);
+	 }
 }
-//·¢Éä»ú¹¹Éä»÷µç»úÈÎÎñ
+//å‘å°„æœºæ„å°„å‡»ç”µæœºä»»åŠ¡
 int16_t pwm_ccr = 0;
-void ShooterMControlLoop(void)	
-{				      
+void ShooterMControlLoop(void)
+{
 	if(GetShootState() == SHOOTING)
 	{
-		ShootMotorSpeedPID.ref = PID_SHOOT_MOTOR_SPEED;				
+		ShootMotorSpeedPID.ref = PID_SHOOT_MOTOR_SPEED;
 	}
 	else
 	{
-		ShootMotorSpeedPID.ref = 0;		
+		ShootMotorSpeedPID.ref = 0;
 	}
-	
-	ShootMotorSpeedPID.fdb = GetQuadEncoderDiff();   
+
+	ShootMotorSpeedPID.fdb = GetQuadEncoderDiff();
 	ShootMotorSpeedPID.Calc(&ShootMotorSpeedPID);
-	PWM3 = ShootMotorSpeedPID.output;	
+	PWM3 = ShootMotorSpeedPID.output;
 }
 static uint32_t time_tick_1ms = 0;
-//¿ØÖÆÈÎÎñ£¬·ÅÔÚtimer6 1ms¶¨Ê±ÖĞ¶ÏÖĞÖ´ĞĞ
+//æ§åˆ¶ä»»åŠ¡ï¼Œæ”¾åœ¨timer6 1mså®šæ—¶ä¸­æ–­ä¸­æ‰§è¡Œ
 void Control_Task(void)
 {
 	time_tick_1ms++;
 	WorkStateFSM();
 	WorkStateSwitchProcess();
-	//Æô¶¯ºó¸ù¾İ´ÅÁ¦¼ÆµÄÊı¾İ³õÊ¼»¯ËÄÔªÊı
-	if(time_tick_1ms <100)	
+	//å¯åŠ¨åæ ¹æ®ç£åŠ›è®¡çš„æ•°æ®åˆå§‹åŒ–å››å…ƒæ•°
+	if(time_tick_1ms <100)
 	{
 		Init_Quaternion();
 	}
-	//Æ½Ì¨ÎÈ¶¨Æô¶¯ºó£¬¸´Î»ÍÓÂİÒÇÄ£¿é
+	//å¹³å°ç¨³å®šå¯åŠ¨åï¼Œå¤ä½é™€èºä»ªæ¨¡å—
 	if(time_tick_1ms == PREPARE_TIME_TICK_MS/2)
 	{
 		GYRO_RST();
 	}
-		
-	//step 1: ÔÆÌ¨¿ØÖÆ
-	GimbalYawControlModeSwitch();   //Ä£Ê½ÇĞ»»´¦Àí£¬µÃµ½Î»ÖÃ»·µÄÉè¶¨ÖµºÍ¸ø¶¨Öµ
+
+	//step 1: äº‘å°æ§åˆ¶
+	GimbalYawControlModeSwitch();   //æ¨¡å¼åˆ‡æ¢å¤„ç†ï¼Œå¾—åˆ°ä½ç½®ç¯çš„è®¾å®šå€¼å’Œç»™å®šå€¼
 	GMPitchControlLoop();
 	GMYawControlLoop();
 	SetGimbalMotorOutput();
-	CalibrateLoop();   //Ğ£×¼ÈÎÎñ£¬µ±½ÓÊÕµ½Ğ£×¼ÃüÁîºó²ÅÓĞĞ§Ö´ĞĞ£¬·ñÔòÖ±½ÓÌø¹ı
+	CalibrateLoop();   //æ ¡å‡†ä»»åŠ¡ï¼Œå½“æ¥æ”¶åˆ°æ ¡å‡†å‘½ä»¤åæ‰æœ‰æ•ˆæ‰§è¡Œï¼Œå¦åˆ™ç›´æ¥è·³è¿‡
 	//chassis motor control
 	if(time_tick_1ms%4 == 0)         //motor control frequency 4ms
 	{
-		//¼à¿ØÈÎÎñ
-		SuperviseTask();    
-		//µ×ÅÌ¿ØÖÆÈÎÎñ
-		CMControlLoop();			 
-		ShooterMControlLoop();       //·¢Éä»ú¹¹¿ØÖÆÈÎÎñ
+		//ç›‘æ§ä»»åŠ¡
+		SuperviseTask();
+		//åº•ç›˜æ§åˆ¶ä»»åŠ¡
+		CMControlLoop();
+		ShooterMControlLoop();       //å‘å°„æœºæ„æ§åˆ¶ä»»åŠ¡
 	}
-	
+
 }
 /**********************************************************
-*¹¤×÷×´Ì¬ÇĞ»»×´Ì¬»ú,Óë1ms¶¨Ê±ÖĞ¶ÏÍ¬ÆµÂÊ
+*å·¥ä½œçŠ¶æ€åˆ‡æ¢çŠ¶æ€æœº,ä¸1mså®šæ—¶ä¸­æ–­åŒé¢‘ç‡
 **********************************************************/
 
 void WorkStateFSM(void)
@@ -148,70 +148,70 @@ void WorkStateFSM(void)
 			{
 				workState = STOP_STATE;
 			}
-			else if(GetCaliCmdFlagGrp())   
+			else if(GetCaliCmdFlagGrp())
 			{
 				workState = CALI_STATE;
 			}
 			else if(time_tick_1ms > PREPARE_TIME_TICK_MS)
 			{
 				workState = NORMAL_STATE;
-			}			
+			}
 		}break;
-		case NORMAL_STATE:     
+		case NORMAL_STATE:
 		{
 			if(GetInputMode() == STOP || Is_Serious_Error())
 			{
 				workState = STOP_STATE;
 			}
-			else if(GetCaliCmdFlagGrp())   
+			else if(GetCaliCmdFlagGrp())
 			{
 				workState = CALI_STATE;
 			}
 			else if((!IsRemoteBeingAction() ||(Get_Lost_Error(LOST_ERROR_RC) == LOST_ERROR_RC)) && GetShootState() != SHOOTING)
 			{
-				workState = STANDBY_STATE;      
-			}			
+				workState = STANDBY_STATE;
+			}
 		}break;
-		case STANDBY_STATE:     
+		case STANDBY_STATE:
 		{
 			if(GetInputMode() == STOP || Is_Serious_Error())
 			{
 				workState = STOP_STATE;
 			}
-			else if(GetCaliCmdFlagGrp())   
+			else if(GetCaliCmdFlagGrp())
 			{
 				workState = CALI_STATE;
 			}
 			else if(IsRemoteBeingAction() || (GetShootState()==SHOOTING) || GetFrictionState() == FRICTION_WHEEL_START_TURNNING)
 			{
 				workState = NORMAL_STATE;
-			}				
+			}
 		}break;
-		case STOP_STATE:   
+		case STOP_STATE:
 		{
 			if(GetInputMode() != STOP && !Is_Serious_Error())
 			{
-				workState = PREPARE_STATE;   
+				workState = PREPARE_STATE;
 			}
 		}break;
-		case CALI_STATE:      
+		case CALI_STATE:
 		{
 			if(GetInputMode() == STOP || Is_Serious_Error())
 			{
 				workState = STOP_STATE;
 			}
-		}break;	    
+		}break;
 		default:
 		{
-			
+
 		}
-	}	
+	}
 }
 
 static void WorkStateSwitchProcess(void)
 {
-	//Èç¹û´ÓÆäËûÄ£Ê½ÇĞ»»µ½prapareÄ£Ê½£¬Òª½«Ò»ÏµÁĞ²ÎÊı³õÊ¼»¯
-	if((lastWorkState != workState) && (workState == PREPARE_STATE))  
+	//å¦‚æœä»å…¶ä»–æ¨¡å¼åˆ‡æ¢åˆ°prapareæ¨¡å¼ï¼Œè¦å°†ä¸€ç³»åˆ—å‚æ•°åˆå§‹åŒ–
+	if((lastWorkState != workState) && (workState == PREPARE_STATE))
 	{
 		ControtLoopTaskInit();
 		RemoteTaskInit();
@@ -222,26 +222,26 @@ static void WorkStateSwitchProcess(void)
 ************************************************************************************************************************
 *Name        : GimbalYawControlModeSwitch
 * Description: This function process the yaw angle ref and fdb according to the WORKSTATE.
-* Arguments  : void     
+* Arguments  : void
 * Returns    : void
-* Note(s)    : 1) from NORMAL to STANDBY it need to delay a few seconds to wait for the IMU to be steady.  
+* Note(s)    : 1) from NORMAL to STANDBY it need to delay a few seconds to wait for the IMU to be steady.
                   STATE_SWITCH_DELAY_TICK represents the delay time.
 ************************************************************************************************************************
 */
 
 void GimbalYawControlModeSwitch(void)
 {
-	static uint8_t normalFlag = 0;   //Õı³£¹¤×÷Ä£Ê½±êÖ¾
-	static uint8_t standbyFlag = 1;  //IMU¹¤×÷Ä£Ê½±êÖ¾
+	static uint8_t normalFlag = 0;   //æ­£å¸¸å·¥ä½œæ¨¡å¼æ ‡å¿—
+	static uint8_t standbyFlag = 1;  //IMUå·¥ä½œæ¨¡å¼æ ‡å¿—
 	static uint32_t modeChangeDelayCnt = 0;
-	static float angleSave = 0.0f;    //ÓÃÓÚÇĞ»»Ä£Ê½Ê±±£´æÇĞ»»Ç°µÄ½Ç¶ÈÖµ£¬ÓÃÓÚ½Ç¶È¸ø¶¨ÖµÇĞ»»
+	static float angleSave = 0.0f;    //ç”¨äºåˆ‡æ¢æ¨¡å¼æ—¶ä¿å­˜åˆ‡æ¢å‰çš„è§’åº¦å€¼ï¼Œç”¨äºè§’åº¦ç»™å®šå€¼åˆ‡æ¢
 	switch(GetWorkState())
 	{
-		case PREPARE_STATE:   //Æô¶¯¹ı³Ì£¬¼ÓÈëĞ±ÆÂ
+		case PREPARE_STATE:   //å¯åŠ¨è¿‡ç¨‹ï¼ŒåŠ å…¥æ–œå¡
 		{
 			GMYPositionPID.ref = 0.0f;
 			GMYPositionPID.fdb = -GMYawEncoder.ecd_angle*GMYawRamp.Calc(&GMYawRamp);
-			angleSave = ZGyroModuleAngle;			
+			angleSave = ZGyroModuleAngle;
 		}break;
 		case NORMAL_STATE:
 		{
@@ -249,60 +249,60 @@ void GimbalYawControlModeSwitch(void)
 			{
 				standbyFlag = 0;
 				normalFlag = 1;
-				GimbalRef.yaw_angle_dynamic_ref = angleSave;   //ĞŞ¸ÄÉè¶¨ÖµÎªSTANDBY×´Ì¬ÏÂ¼ÇÂ¼µÄ×îºóÒ»¸öZGYROMODULEAngleÖµ
-				modeChangeDelayCnt = 0;   //delayÇåÁã
+				GimbalRef.yaw_angle_dynamic_ref = angleSave;   //ä¿®æ”¹è®¾å®šå€¼ä¸ºSTANDBYçŠ¶æ€ä¸‹è®°å½•çš„æœ€åä¸€ä¸ªZGYROMODULEAngleå€¼
+				modeChangeDelayCnt = 0;   //delayæ¸…é›¶
 			}
-			GMYPositionPID.ref = GimbalRef.yaw_angle_dynamic_ref;   //Éè¶¨¸ø¶¨Öµ
-			GMYPositionPID.fdb = ZGyroModuleAngle; 					//Éè¶¨·´À¡Öµ
-			angleSave = yaw_angle;   //Ê±¿Ì±£´æIMUµÄÖµÓÃÓÚ´ÓNORMALÏòSTANDBYÄ£Ê½ÇĞ»»
+			GMYPositionPID.ref = GimbalRef.yaw_angle_dynamic_ref;   //è®¾å®šç»™å®šå€¼
+			GMYPositionPID.fdb = ZGyroModuleAngle; 					//è®¾å®šåé¦ˆå€¼
+			angleSave = yaw_angle;   //æ—¶åˆ»ä¿å­˜IMUçš„å€¼ç”¨äºä»NORMALå‘STANDBYæ¨¡å¼åˆ‡æ¢
 		}break;
-		case STANDBY_STATE:   //IMUÄ£Ê½
+		case STANDBY_STATE:   //IMUæ¨¡å¼
 		{
 			modeChangeDelayCnt++;
-			if(modeChangeDelayCnt < STATE_SWITCH_DELAY_TICK)    //delayµÄÕâ¶ÎÊ±¼äÓëNORMAL_STATEÒ»Ñù
+			if(modeChangeDelayCnt < STATE_SWITCH_DELAY_TICK)    //delayçš„è¿™æ®µæ—¶é—´ä¸NORMAL_STATEä¸€æ ·
 			{
-				GMYPositionPID.ref = GimbalRef.yaw_angle_dynamic_ref;   //Éè¶¨¸ø¶¨Öµ
-				GMYPositionPID.fdb = ZGyroModuleAngle; 					//Éè¶¨·´À¡Öµ
+				GMYPositionPID.ref = GimbalRef.yaw_angle_dynamic_ref;   //è®¾å®šç»™å®šå€¼
+				GMYPositionPID.fdb = ZGyroModuleAngle; 					//è®¾å®šåé¦ˆå€¼
 				angleSave = yaw_angle;
 			}
-			else     //delayÊ±¼äµ½£¬ÇĞ»»Ä£Ê½µ½IMU
+			else     //delayæ—¶é—´åˆ°ï¼Œåˆ‡æ¢æ¨¡å¼åˆ°IMU
 			{
-				if(normalFlag == 1)   //ĞŞ¸ÄÄ£Ê½±êÖ¾
+				if(normalFlag == 1)   //ä¿®æ”¹æ¨¡å¼æ ‡å¿—
 				{
 					normalFlag = 0;
 					standbyFlag = 1;
-					GimbalRef.yaw_angle_dynamic_ref = angleSave;    //±£´æµÄÊÇdelayÊ±¼ä¶ÎÄÚ±£´æµÄ
+					GimbalRef.yaw_angle_dynamic_ref = angleSave;    //ä¿å­˜çš„æ˜¯delayæ—¶é—´æ®µå†…ä¿å­˜çš„
 				}
-				GMYPositionPID.ref = GimbalRef.yaw_angle_dynamic_ref;   //Éè¶¨¸ø¶¨Öµ
-				GMYPositionPID.fdb = yaw_angle; 					//Éè¶¨·´À¡Öµ	
-				angleSave = ZGyroModuleAngle;           //IMUÄ£Ê½Ê±£¬±£´æZGyroµÄÖµ¹©Ä£Ê½ÇĞ»»Ê±ĞŞ¸Ä¸ø¶¨ÖµÊ¹ÓÃ						
+				GMYPositionPID.ref = GimbalRef.yaw_angle_dynamic_ref;   //è®¾å®šç»™å®šå€¼
+				GMYPositionPID.fdb = yaw_angle; 					//è®¾å®šåé¦ˆå€¼
+				angleSave = ZGyroModuleAngle;           //IMUæ¨¡å¼æ—¶ï¼Œä¿å­˜ZGyroçš„å€¼ä¾›æ¨¡å¼åˆ‡æ¢æ—¶ä¿®æ”¹ç»™å®šå€¼ä½¿ç”¨
 			}
 		}break;
-		case STOP_STATE:    //Í£Ö¹¹¤×÷Ä£Ê½
+		case STOP_STATE:    //åœæ­¢å·¥ä½œæ¨¡å¼
 		{
-			
+
 		}break;
-		case CALI_STATE:    //Ğ£×¼Ä£Ê½
+		case CALI_STATE:    //æ ¡å‡†æ¨¡å¼
 		{
-			
+
 		}break;
-	}	
+	}
 }
 
-//ÔÆÌ¨pitchÖá¿ØÖÆ³ÌĞò
+//äº‘å°pitchè½´æ§åˆ¶ç¨‹åº
 void GMPitchControlLoop(void)
 {
 	GMPPositionPID.kp = PITCH_POSITION_KP_DEFAULTS + PitchPositionSavedPID.kp_offset;
 	GMPPositionPID.ki = PITCH_POSITION_KI_DEFAULTS + PitchPositionSavedPID.ki_offset;
 	GMPPositionPID.kd = PITCH_POSITION_KD_DEFAULTS + PitchPositionSavedPID.kd_offset;
-		
+
 	GMPSpeedPID.kp = PITCH_SPEED_KP_DEFAULTS + PitchSpeedSavedPID.kp_offset;
 	GMPSpeedPID.ki = PITCH_SPEED_KI_DEFAULTS + PitchSpeedSavedPID.ki_offset;
 	GMPSpeedPID.kd = PITCH_SPEED_KD_DEFAULTS + PitchSpeedSavedPID.kd_offset;
-	
+
 	GMPPositionPID.ref = GimbalRef.pitch_angle_dynamic_ref;
-	GMPPositionPID.fdb = -GMPitchEncoder.ecd_angle * GMPitchRamp.Calc(&GMPitchRamp);    //¼ÓÈëĞ±ÆÂº¯Êı
-	GMPPositionPID.Calc(&GMPPositionPID);   //µÃµ½pitchÖáÎ»ÖÃ»·Êä³ö¿ØÖÆÁ¿
+	GMPPositionPID.fdb = -GMPitchEncoder.ecd_angle * GMPitchRamp.Calc(&GMPitchRamp);    //åŠ å…¥æ–œå¡å‡½æ•°
+	GMPPositionPID.Calc(&GMPPositionPID);   //å¾—åˆ°pitchè½´ä½ç½®ç¯è¾“å‡ºæ§åˆ¶é‡
 	//pitch speed control
 	GMPSpeedPID.ref = GMPPositionPID.output;
 	GMPSpeedPID.fdb = MPU6050_Real_Data.Gyro_Y;
@@ -314,50 +314,50 @@ void GMYawControlLoop(void)
 	GMYPositionPID.kp = YAW_POSITION_KP_DEFAULTS + YawPositionSavedPID.kp_offset;//  gAppParamStruct.YawPositionPID.kp_offset;  //may be bug if more operation  done
 	GMYPositionPID.ki = YAW_POSITION_KI_DEFAULTS + YawPositionSavedPID.ki_offset;
 	GMYPositionPID.kd = YAW_POSITION_KD_DEFAULTS + YawPositionSavedPID.kd_offset;
-	
+
 	GMYSpeedPID.kp = YAW_SPEED_KP_DEFAULTS + YawSpeedSavedPID.kp_offset;
 	GMYSpeedPID.ki = YAW_SPEED_KI_DEFAULTS + YawSpeedSavedPID.ki_offset;
 	GMYSpeedPID.kd = YAW_SPEED_KD_DEFAULTS + YawSpeedSavedPID.kd_offset;
-	
+
 	GMYPositionPID.Calc(&GMYPositionPID);
 	//yaw speed control
 	GMYSpeedPID.ref = GMYPositionPID.output;
 	GMYSpeedPID.fdb = MPU6050_Real_Data.Gyro_Z;
-	GMYSpeedPID.Calc(&GMYSpeedPID);			
+	GMYSpeedPID.Calc(&GMYSpeedPID);
 }
 
 void SetGimbalMotorOutput(void)
 {
-	//ÔÆÌ¨¿ØÖÆÊä³ö								
-	if((GetWorkState() == STOP_STATE) ||Is_Serious_Error() || GetWorkState() == CALI_STATE)   
+	//äº‘å°æ§åˆ¶è¾“å‡º
+	if((GetWorkState() == STOP_STATE) ||Is_Serious_Error() || GetWorkState() == CALI_STATE)
 	{
-		Set_Gimbal_Current(CAN2, 0, 0);     //yaw + pitch			
+		Set_Gimbal_Current(CAN2, 0, 0);     //yaw + pitch
 	}
 	else
-	{		
-		Set_Gimbal_Current(CAN2, -(int16_t)GMYSpeedPID.output, -(int16_t)GMPSpeedPID.output);     //yaw + pitch			
-	}		
+	{
+		Set_Gimbal_Current(CAN2, -(int16_t)GMYSpeedPID.output, -(int16_t)GMPSpeedPID.output);     //yaw + pitch
+	}
 }
-//¿ØÖÆÈÎÎñ³õÊ¼»¯³ÌĞò
+//æ§åˆ¶ä»»åŠ¡åˆå§‹åŒ–ç¨‹åº
 void ControtLoopTaskInit(void)
 {
-	//¼ÆÊı³õÊ¼»¯
-	time_tick_1ms = 0;   //ÖĞ¶ÏÖĞµÄ¼ÆÊıÇåÁã
-	//³ÌĞò²ÎÊı³õÊ¼»¯
+	//è®¡æ•°åˆå§‹åŒ–
+	time_tick_1ms = 0;   //ä¸­æ–­ä¸­çš„è®¡æ•°æ¸…é›¶
+	//ç¨‹åºå‚æ•°åˆå§‹åŒ–
 	AppParamInit();
-	//Ğ£×¼ºó²ÎÊıÆ«²îÖµ³õÊ¼»¯
+	//æ ¡å‡†åå‚æ•°åå·®å€¼åˆå§‹åŒ–
 	Sensor_Offset_Param_Init(&gAppParamStruct);
-	//ÉèÖÃ¹¤×÷Ä£Ê½
+	//è®¾ç½®å·¥ä½œæ¨¡å¼
 	SetWorkState(PREPARE_STATE);
-	//Ğ±ÆÂ³õÊ¼»¯
+	//æ–œå¡åˆå§‹åŒ–
 	GMPitchRamp.SetScale(&GMPitchRamp, PREPARE_TIME_TICK_MS);
 	GMYawRamp.SetScale(&GMYawRamp, PREPARE_TIME_TICK_MS);
 	GMPitchRamp.ResetCounter(&GMPitchRamp);
 	GMYawRamp.ResetCounter(&GMYawRamp);
-	//ÔÆÌ¨¸ø¶¨½Ç¶È³õÊ¼»¯
+	//äº‘å°ç»™å®šè§’åº¦åˆå§‹åŒ–
 	GimbalRef.pitch_angle_dynamic_ref = 0.0f;
 	GimbalRef.yaw_angle_dynamic_ref = 0.0f;
-    //¼à¿ØÈÎÎñ³õÊ¼»¯
+    //ç›‘æ§ä»»åŠ¡åˆå§‹åŒ–
     LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_RC));
     LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_IMU));
     LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_ZGYRO));
@@ -369,8 +369,8 @@ void ControtLoopTaskInit(void)
     LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_MOTOR6));
     LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_DEADLOCK));
     LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_NOCALI));
-    
-	//PID³õÊ¼»¯
+
+	//PIDåˆå§‹åŒ–
 	ShootMotorSpeedPID.Reset(&ShootMotorSpeedPID);
 	GMPPositionPID.Reset(&GMPPositionPID);
 	GMPSpeedPID.Reset(&GMPSpeedPID);

@@ -24,7 +24,7 @@ float ZGyroModuleAngle = 0.0f;
 void GetEncoderBias(volatile Encoder *v, CanRxMsg * msg)
 {
 
-            v->ecd_bias = (msg->Data[0]<<8)|msg->Data[1];  //±£´æ³õÊ¼±àÂëÆ÷Öµ×÷ÎªÆ«²î  
+            v->ecd_bias = (msg->Data[0]<<8)|msg->Data[1];  //ä¿å­˜åˆå§‹ç¼–ç å™¨å€¼ä½œä¸ºåå·®
             v->ecd_value = v->ecd_bias;
             v->last_raw_value = v->ecd_bias;
             v->temp_count++;
@@ -43,11 +43,11 @@ void GetEncoderBias(volatile Encoder *v, CanRxMsg * msg)
 void EncoderProcess(volatile Encoder *v, CanRxMsg * msg)
 {
 	int i=0;
-	int32_t temp_sum = 0;    
+	int32_t temp_sum = 0;
 	v->last_raw_value = v->raw_value;
 	v->raw_value = (msg->Data[0]<<8)|msg->Data[1];
 	v->diff = v->raw_value - v->last_raw_value;
-	if(v->diff < -7500)    //Á½´Î±àÂëÆ÷µÄ·´À¡Öµ²î±ğÌ«´ó£¬±íÊ¾È¦Êı·¢ÉúÁË¸Ä±ä
+	if(v->diff < -7500)    //ä¸¤æ¬¡ç¼–ç å™¨çš„åé¦ˆå€¼å·®åˆ«å¤ªå¤§ï¼Œè¡¨ç¤ºåœˆæ•°å‘ç”Ÿäº†æ”¹å˜
 	{
 		v->round_cnt++;
 		v->ecd_raw_rate = v->diff + 8192;
@@ -56,26 +56,26 @@ void EncoderProcess(volatile Encoder *v, CanRxMsg * msg)
 	{
 		v->round_cnt--;
 		v->ecd_raw_rate = v->diff- 8192;
-	}		
+	}
 	else
 	{
 		v->ecd_raw_rate = v->diff;
 	}
-	//¼ÆËãµÃµ½Á¬ĞøµÄ±àÂëÆ÷Êä³öÖµ
+	//è®¡ç®—å¾—åˆ°è¿ç»­çš„ç¼–ç å™¨è¾“å‡ºå€¼
 	v->ecd_value = v->raw_value + v->round_cnt * 8192;
-	//¼ÆËãµÃµ½½Ç¶ÈÖµ£¬·¶Î§Õı¸ºÎŞÇî´ó
+	//è®¡ç®—å¾—åˆ°è§’åº¦å€¼ï¼ŒèŒƒå›´æ­£è´Ÿæ— ç©·å¤§
 	v->ecd_angle = (float)(v->raw_value - v->ecd_bias)*360/8192 + v->round_cnt * 360;
 	v->rate_buf[v->buf_count++] = v->ecd_raw_rate;
 	if(v->buf_count == RATE_BUF_SIZE)
 	{
 		v->buf_count = 0;
 	}
-	//¼ÆËãËÙ¶ÈÆ½¾ùÖµ
+	//è®¡ç®—é€Ÿåº¦å¹³å‡å€¼
 	for(i = 0;i < RATE_BUF_SIZE; i++)
 	{
 		temp_sum += v->rate_buf[i];
 	}
-	v->filter_rate = (int32_t)(temp_sum/RATE_BUF_SIZE);					
+	v->filter_rate = (int32_t)(temp_sum/RATE_BUF_SIZE);
 }
 
 /*
@@ -88,7 +88,7 @@ void EncoderProcess(volatile Encoder *v, CanRxMsg * msg)
 ************************************************************************************************************************
 */
 void CanReceiveMsgProcess(CanRxMsg * msg)
-{      
+{
         //GMYawEncoder.ecd_bias = yaw_ecd_bias;
         can_count++;
 		switch(msg->StdId)
@@ -96,8 +96,8 @@ void CanReceiveMsgProcess(CanRxMsg * msg)
 				case CAN_BUS2_MOTOR1_FEEDBACK_MSG_ID:
 				{
 					LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_MOTOR1));
-					(can_count<=50) ? GetEncoderBias(&CM1Encoder ,msg):EncoderProcess(&CM1Encoder ,msg);       //»ñÈ¡µ½±àÂëÆ÷µÄ³õÊ¼Æ«²îÖµ            
-                    
+					(can_count<=50) ? GetEncoderBias(&CM1Encoder ,msg):EncoderProcess(&CM1Encoder ,msg);       //è·å–åˆ°ç¼–ç å™¨çš„åˆå§‹åå·®å€¼
+
 				}break;
 				case CAN_BUS2_MOTOR2_FEEDBACK_MSG_ID:
 				{
@@ -107,7 +107,7 @@ void CanReceiveMsgProcess(CanRxMsg * msg)
 				case CAN_BUS2_MOTOR3_FEEDBACK_MSG_ID:
 				{
 					LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_MOTOR3));
-					(can_count<=50) ? GetEncoderBias(&CM3Encoder ,msg):EncoderProcess(&CM3Encoder ,msg);   
+					(can_count<=50) ? GetEncoderBias(&CM3Encoder ,msg):EncoderProcess(&CM3Encoder ,msg);
 				}break;
 				case CAN_BUS2_MOTOR4_FEEDBACK_MSG_ID:
 				{
@@ -118,10 +118,10 @@ void CanReceiveMsgProcess(CanRxMsg * msg)
 				{
 					LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_MOTOR5));
 					 //GMYawEncoder.ecd_bias = yaw_ecd_bias;
-					 EncoderProcess(&GMYawEncoder ,msg);    
-						// ±È½Ï±£´æ±àÂëÆ÷µÄÖµºÍÆ«²îÖµ£¬Èç¹û±àÂëÆ÷µÄÖµºÍ³õÊ¼Æ«²îÖ®¼ä²î¾à³¬¹ıãĞÖµ£¬½«Æ«²îÖµ×ö´¦Àí£¬·ÀÖ¹³öÏÖÔÆÌ¨·´·½ÏòÔË¶¯
+					 EncoderProcess(&GMYawEncoder ,msg);
+						// æ¯”è¾ƒä¿å­˜ç¼–ç å™¨çš„å€¼å’Œåå·®å€¼ï¼Œå¦‚æœç¼–ç å™¨çš„å€¼å’Œåˆå§‹åå·®ä¹‹é—´å·®è·è¶…è¿‡é˜ˆå€¼ï¼Œå°†åå·®å€¼åšå¤„ç†ï¼Œé˜²æ­¢å‡ºç°äº‘å°åæ–¹å‘è¿åŠ¨
 					// if(can_count>=90 && can_count<=100)
-					if(GetWorkState() == PREPARE_STATE)   //×¼±¸½×¶ÎÒªÇó¶şÕßÖ®¼äµÄ²îÖµÒ»¶¨²»ÄÜ´óÓÚãĞÖµ£¬·ñÔò¿Ï¶¨ÊÇ³öÏÖÁËÁÙ½çÇĞ»»
+					if(GetWorkState() == PREPARE_STATE)   //å‡†å¤‡é˜¶æ®µè¦æ±‚äºŒè€…ä¹‹é—´çš„å·®å€¼ä¸€å®šä¸èƒ½å¤§äºé˜ˆå€¼ï¼Œå¦åˆ™è‚¯å®šæ˜¯å‡ºç°äº†ä¸´ç•Œåˆ‡æ¢
 					 {
 							 if((GMYawEncoder.ecd_bias - GMYawEncoder.ecd_value) <-4000)
 							 {
@@ -138,7 +138,7 @@ void CanReceiveMsgProcess(CanRxMsg * msg)
 					LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_MOTOR6));
 						//GMPitchEncoder.ecd_bias = pitch_ecd_bias;
 						EncoderProcess(&GMPitchEncoder ,msg);
-						//ÂëÅÌÖĞ¼äÖµÉè¶¨Ò²ĞèÒªĞŞ¸Ä
+						//ç ç›˜ä¸­é—´å€¼è®¾å®šä¹Ÿéœ€è¦ä¿®æ”¹
 						 if(can_count<=100)
 						 {
 							 if((GMPitchEncoder.ecd_bias - GMPitchEncoder.ecd_value) <-4000)
@@ -150,25 +150,25 @@ void CanReceiveMsgProcess(CanRxMsg * msg)
 								 GMPitchEncoder.ecd_bias = gAppParamStruct.GimbalCaliData.GimbalPitchOffset - 8192;
 							 }
 						 }
-				}break;				
+				}break;
 				case CAN_BUS1_ZGYRO_FEEDBACK_MSG_ID:
 				{
 					LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_ZGYRO));
-					ZGyroModuleAngle = -0.01f*((int32_t)(msg->Data[0]<<24)|(int32_t)(msg->Data[1]<<16) | (int32_t)(msg->Data[2]<<8) | (int32_t)(msg->Data[3])); 
+					ZGyroModuleAngle = -0.01f*((int32_t)(msg->Data[0]<<24)|(int32_t)(msg->Data[1]<<16) | (int32_t)(msg->Data[2]<<8) | (int32_t)(msg->Data[3]));
 				}break;
 				default:
 				{
 				}
 		}
-		// check if deadlock, meeans the yaw angle is overflow //time should keep for a long time to avoid bug		
-			if(!LostCounterOverflowCheck(fabs(GMYawEncoder.ecd_angle), 70.0f) || GetWorkState() == STOP_STATE)  //Èç¹ûÊÇÍ£Ö¹Ä£Ê½£¬Ò»Ö±Î¹¹··ÀÖ¹ÖØĞÂÆô¶¯Ê§°Ü
+		// check if deadlock, meeans the yaw angle is overflow //time should keep for a long time to avoid bug
+			if(!LostCounterOverflowCheck(fabs(GMYawEncoder.ecd_angle), 70.0f) || GetWorkState() == STOP_STATE)  //å¦‚æœæ˜¯åœæ­¢æ¨¡å¼ï¼Œä¸€ç›´å–‚ç‹—é˜²æ­¢é‡æ–°å¯åŠ¨å¤±è´¥
 			{
 				LostCounterFeed(GetLostCounter(LOST_COUNTER_INDEX_DEADLOCK));
-			}		 
+			}
 }
 
 /********************************************************************************
-   ¸øµ×ÅÌµçµ÷°å·¢ËÍÖ¸Áî£¬IDºÅÎª0x200£¸øµµ×ÅÌ·µ»ØIDÎª0x201-0x204
+   ç»™åº•ç›˜ç”µè°ƒæ¿å‘é€æŒ‡ä»¤ï¼ŒIDå·ä¸º0x200ï¼˜î‰ˆåº•ç›˜è¿”å›IDä¸º0x201-0x204
 *********************************************************************************/
 void Set_CM_Speed(CAN_TypeDef *CANx, int16_t cm1_iq, int16_t cm2_iq, int16_t cm3_iq, int16_t cm4_iq)
 {
@@ -177,7 +177,7 @@ void Set_CM_Speed(CAN_TypeDef *CANx, int16_t cm1_iq, int16_t cm2_iq, int16_t cm3
     tx_message.IDE = CAN_Id_Standard;
     tx_message.RTR = CAN_RTR_Data;
     tx_message.DLC = 0x08;
-    
+
     tx_message.Data[0] = (uint8_t)(cm1_iq >> 8);
     tx_message.Data[1] = (uint8_t)cm1_iq;
     tx_message.Data[2] = (uint8_t)(cm2_iq >> 8);
@@ -190,17 +190,17 @@ void Set_CM_Speed(CAN_TypeDef *CANx, int16_t cm1_iq, int16_t cm2_iq, int16_t cm3
 }
 
 /********************************************************************************
-   ¸øµçµ÷°å·¢ËÍÖ¸Áî£¬IDºÅÎª0x1FF£¬Ö»ÓÃÁ½¸öµçµ÷°å£¬Êı¾İ»Ø´«IDÎª0x205ºÍ0x206
-	 cyq:¸ü¸ÄÎª·¢ËÍÈı¸öµçµ÷µÄÖ¸Áî¡£
+   ç»™ç”µè°ƒæ¿å‘é€æŒ‡ä»¤ï¼ŒIDå·ä¸º0x1FFï¼Œåªç”¨ä¸¤ä¸ªç”µè°ƒæ¿ï¼Œæ•°æ®å›ä¼ IDä¸º0x205å’Œ0x206
+	 cyq:æ›´æ”¹ä¸ºå‘é€ä¸‰ä¸ªç”µè°ƒçš„æŒ‡ä»¤ã€‚
 *********************************************************************************/
 void Set_Gimbal_Current(CAN_TypeDef *CANx, int16_t gimbal_yaw_iq, int16_t gimbal_pitch_iq)
 {
-    CanTxMsg tx_message;    
+    CanTxMsg tx_message;
     tx_message.StdId = 0x1FF;
     tx_message.IDE = CAN_Id_Standard;
     tx_message.RTR = CAN_RTR_Data;
     tx_message.DLC = 0x08;
-    
+
     tx_message.Data[0] = (unsigned char)(gimbal_yaw_iq >> 8);
     tx_message.Data[1] = (unsigned char)gimbal_yaw_iq;
     tx_message.Data[2] = (unsigned char)(gimbal_pitch_iq >> 8);

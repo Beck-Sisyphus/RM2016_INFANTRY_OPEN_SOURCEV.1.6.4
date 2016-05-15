@@ -55,7 +55,7 @@ typedef struct Debug_Info
 	Can_Info motor_203_info;      //3Hz
 	Can_Info motor_204_info;      //4Hz
 	Can_Info motor_205_info;      //3Hz
-	Can_Info motor_206_info;      //4Hz	
+	Can_Info motor_206_info;      //4Hz
 	Can_Info can2_tx_info;				//can2 tx error
 	Can_Info can1_info;				//	can1 error
 	Cali_Error cali_info;
@@ -69,20 +69,20 @@ typedef struct Debug_Info
 
 #define LOST_COUNTER_NUM                             11u
 
-//IMU不正常
+//IMU虏禄脮媒鲁拢
 #define LOST_COUNTER_INDEX_RC                        0u   //green:green:green 1:1:1
 #define LOST_COUNTER_INDEX_IMU                       1u    //red always on
 #define LOST_COUNTER_INDEX_ZGYRO                     2u    //
-#define LOST_COUNTER_INDEX_MOTOR1                    3u    //green:red:green 1 1 1 
-#define LOST_COUNTER_INDEX_MOTOR2                    4u    //green:red:green 1 2 1 
-#define LOST_COUNTER_INDEX_MOTOR3                    5u    //green:red:green 1 3 1 
-#define LOST_COUNTER_INDEX_MOTOR4                    6u    //green:red:green 1 4 1 
-#define LOST_COUNTER_INDEX_MOTOR5                    7u    //green:red:green 1 5 1 
-#define LOST_COUNTER_INDEX_MOTOR6                    8u    //green:red:green 1 6 1 
+#define LOST_COUNTER_INDEX_MOTOR1                    3u    //green:red:green 1 1 1
+#define LOST_COUNTER_INDEX_MOTOR2                    4u    //green:red:green 1 2 1
+#define LOST_COUNTER_INDEX_MOTOR3                    5u    //green:red:green 1 3 1
+#define LOST_COUNTER_INDEX_MOTOR4                    6u    //green:red:green 1 4 1
+#define LOST_COUNTER_INDEX_MOTOR5                    7u    //green:red:green 1 5 1
+#define LOST_COUNTER_INDEX_MOTOR6                    8u    //green:red:green 1 6 1
 #define LOST_COUNTER_INDEX_DEADLOCK                  9u    //red:red:red 1:1:1
 #define LOST_COUNTER_INDEX_NOCALI            		 10u    //red:red:red 1:1:1
 
-#define LOST_ERROR_RC									(1<<0)		//rc lost 
+#define LOST_ERROR_RC									(1<<0)		//rc lost
 #define LOST_ERROR_IMU									(1<<1)		//mpu6050 error
 #define LOST_ERROR_ZGYRO								(1<<2)		//can1 zyro error
 #define LOST_ERROR_MOTOR1								(1<<3)		//motor1 error
@@ -98,7 +98,7 @@ typedef struct Debug_Info
 #define RED_LED 0
 #define GREEN_LED 1
 
-extern Debug_Info debug_info;   //错误消息
+extern Debug_Info debug_info;   //麓铆脦贸脧没脧垄
 
 void SuperviseTask(void);
 void LED_TOGGLE(uint8_t led, uint16_t CYCLE_S, uint16_t TOGGLE_S, uint16_t shine_times,uint16_t TIME_SPAN);

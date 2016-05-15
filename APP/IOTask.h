@@ -22,7 +22,7 @@ typedef struct Version
 {
 		uint8_t A;   //main version number
 		uint8_t B;	//sub version number
-		uint8_t C;	
+		uint8_t C;
 		uint8_t D;	// test version number
 }Version;
 
@@ -35,7 +35,7 @@ typedef struct Version
 }\
 
 #define PARAM_SAVED_FLAG                            0x5A   //header of the structure
-#define PARAM_CALI_DONE                             0x5A 		
+#define PARAM_CALI_DONE                             0x5A
 #define PARAM_CALI_NONE                             0x00
 
 #define CALI_START_FLAG_GYRO                  ((uint32_t)1<<1)
@@ -69,7 +69,7 @@ typedef __packed struct
 {
     int16_t     AccXOffset;
     int16_t     AccYOffset;
-    int16_t     AccZOffset; 
+    int16_t     AccZOffset;
     float       AccXScale;
     float       AccYScale;
     float       AccZScale;
@@ -83,22 +83,22 @@ typedef __packed struct
     int16_t     MagZOffset;
     float       MagXScale;
     float       MagYScale;
-    float       MagZScale;    
+    float       MagZScale;
     uint8_t     MagCaliFlag;
 }MagCaliStruct_t;
 
 typedef __packed struct
 {
 	int8_t pid_type;		// position PID
-	int8_t motor_type;   //motor type ie: pitch yaw 201 202 203 204	
+	int8_t motor_type;   //motor type ie: pitch yaw 201 202 203 204
 	int16_t kp_offset;
 	int16_t ki_offset;
 	int16_t kd_offset;
 }PIDParamStruct_t;
 
-typedef __packed struct 
+typedef __packed struct
 {
-    uint8_t     ParamSavedFlag;    				//header 
+    uint8_t     ParamSavedFlag;    				//header
     uint32_t    FirmwareVersion;    			//version
     GimbalCaliStruct_t GimbalCaliData;    //gimbal pitch yaw encoder offset
     GyroCaliStruct_t   GyroCaliData;      //gyro offset data
@@ -109,7 +109,7 @@ typedef __packed struct
 	PIDParamStruct_t   YawPositionPID;
 	PIDParamStruct_t   YawSpeedPID;
 }AppParam_t;
-//ÉÏ´«Êý¾ÝµÄÀàÐÍ
+//ä¸Šä¼ æ•°æ®çš„ç±»åž‹
 typedef enum
 {
 	REIMU = 1,
@@ -126,10 +126,10 @@ extern GyroCaliStruct_t   GyroSavedCaliData;      //gyro offset data
 extern AccCaliStruct_t    AccSavedCaliData;    		//ACC offset data
 extern MagCaliStruct_t    MagSavedCaliData;				//Mag offset data
 
-extern PIDParamStruct_t PitchPostionCaliData;  //±£´æpitchÖápositionÐ£×¼Öµ
-extern PIDParamStruct_t PitchSpeedCaliData;  //±£´æpitchÖápositionÐ£×¼Öµ
-extern PIDParamStruct_t YawPositionCaliData;  //±£´æpitchÖápositionÐ£×¼Öµ
-extern PIDParamStruct_t YawSpeedCaliData;  //±£´æpitchÖápositionÐ£×¼Öµ
+extern PIDParamStruct_t PitchPostionCaliData;  //ä¿å­˜pitchè½´positionæ ¡å‡†å€¼
+extern PIDParamStruct_t PitchSpeedCaliData;  //ä¿å­˜pitchè½´positionæ ¡å‡†å€¼
+extern PIDParamStruct_t YawPositionCaliData;  //ä¿å­˜pitchè½´positionæ ¡å‡†å€¼
+extern PIDParamStruct_t YawSpeedCaliData;  //ä¿å­˜pitchè½´positionæ ¡å‡†å€¼
 
 extern PIDParamStruct_t PitchPositionSavedPID;        	//PID offset data
 extern PIDParamStruct_t PitchSpeedSavedPID;        	//PID offset data
@@ -144,7 +144,7 @@ void GetGyroCaliData(GyroCaliStruct_t *cali_data);
 void GetAccCaliData(AccCaliStruct_t *cali_data);
 void GetMagCaliData(MagCaliStruct_t *cali_data);
 
-//¶ÁÈ¡calidata±£´æµ½gAppParamStructÖÐ£¬²¢Ð´Èëµ½FlashÖÐ
+//è¯»å–calidataä¿å­˜åˆ°gAppParamStructä¸­ï¼Œå¹¶å†™å…¥åˆ°Flashä¸­
 void SetGimbalCaliData(GimbalCaliStruct_t *cali_data);
 void SetGyroCaliData(GyroCaliStruct_t *cali_data);
 void SetAccCaliData(AccCaliStruct_t *cali_data);
@@ -170,4 +170,3 @@ uint8_t Is_AppParam_Calied(void);
 
 
 #endif
-

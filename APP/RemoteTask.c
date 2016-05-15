@@ -5,37 +5,37 @@ RC_Ctl_t RC_CtrlData;   //remote control data
 ChassisSpeed_Ref_t ChassisSpeedRef;
 Gimbal_Ref_t GimbalRef;
  FrictionWheelState_e friction_wheel_state = FRICTION_WHEEL_OFF;
-static RemoteSwitch_t switch1;   //Ò£¿ØÆ÷×ó²à²¦¸Ë
+static RemoteSwitch_t switch1;   //é¥æ§å™¨å·¦ä¾§æ‹¨æ†
 static volatile Shoot_State_e shootState = NOSHOOTING;
-static InputMode_e inputmode = REMOTE_INPUT;   //ÊäÈëÄ£Ê½Éè¶¨
+static InputMode_e inputmode = REMOTE_INPUT;   //è¾“å…¥æ¨¡å¼è®¾å®š
 
-RampGen_t frictionRamp = RAMP_GEN_DAFAULT;  //Ä¦²ÁÂÖĞ±ÆÂ
-RampGen_t LRSpeedRamp = RAMP_GEN_DAFAULT;   //mouse×óÓÒÒÆ¶¯Ğ±ÆÂ
-RampGen_t FBSpeedRamp = RAMP_GEN_DAFAULT;   //mouseÇ°ºóÒÆ¶¯Ğ±ÆÂ
- 
+RampGen_t frictionRamp = RAMP_GEN_DAFAULT;  //æ‘©æ“¦è½®æ–œå¡
+RampGen_t LRSpeedRamp = RAMP_GEN_DAFAULT;   //mouseå·¦å³ç§»åŠ¨æ–œå¡
+RampGen_t FBSpeedRamp = RAMP_GEN_DAFAULT;   //mouseå‰åç§»åŠ¨æ–œå¡
+
 void GetRemoteSwitchAction(RemoteSwitch_t *sw, uint8_t val)
 {
 	static uint32_t switch_cnt = 0;
 
-	/* ×îĞÂ×´Ì¬Öµ */
+	/* æœ€æ–°çŠ¶æ€å€¼ */
 	sw->switch_value_raw = val;
 	sw->switch_value_buf[sw->buf_index] = sw->switch_value_raw;
 
-	/* È¡×îĞÂÖµºÍÉÏÒ»´ÎÖµ */
+	/* å–æœ€æ–°å€¼å’Œä¸Šä¸€æ¬¡å€¼ */
 	sw->switch_value1 = (sw->switch_value_buf[sw->buf_last_index] << 2)|
 	(sw->switch_value_buf[sw->buf_index]);
 
 
-	/* ×îÀÏµÄ×´Ì¬ÖµµÄË÷Òı */
+	/* æœ€è€çš„çŠ¶æ€å€¼çš„ç´¢å¼• */
 	sw->buf_end_index = (sw->buf_index + 1)%REMOTE_SWITCH_VALUE_BUF_DEEP;
 
-	/* ºÏ²¢Èı¸öÖµ */
-	sw->switch_value2 = (sw->switch_value_buf[sw->buf_end_index]<<4)|sw->switch_value1;	
+	/* åˆå¹¶ä¸‰ä¸ªå€¼ */
+	sw->switch_value2 = (sw->switch_value_buf[sw->buf_end_index]<<4)|sw->switch_value1;
 
-	/* ³¤°´ÅĞ¶Ï */
+	/* é•¿æŒ‰åˆ¤æ–­ */
 	if(sw->switch_value_buf[sw->buf_index] == sw->switch_value_buf[sw->buf_last_index])
 	{
-		switch_cnt++;	
+		switch_cnt++;
 	}
 	else
 	{
@@ -44,24 +44,24 @@ void GetRemoteSwitchAction(RemoteSwitch_t *sw, uint8_t val)
 
 	if(switch_cnt >= 40)
 	{
-		sw->switch_long_value = sw->switch_value_buf[sw->buf_index]; 	
+		sw->switch_long_value = sw->switch_value_buf[sw->buf_index];
 	}
 
-	//Ë÷ÒıÑ­»·
+	//ç´¢å¼•å¾ªç¯
 	sw->buf_last_index = sw->buf_index;
-	sw->buf_index++;		
+	sw->buf_index++;
 	if(sw->buf_index == REMOTE_SWITCH_VALUE_BUF_DEEP)
 	{
-		sw->buf_index = 0;	
-	}			
+		sw->buf_index = 0;
+	}
 }
-//return the state of the remote 0:no action 1:action 
+//return the state of the remote 0:no action 1:action
 uint8_t IsRemoteBeingAction(void)
 {
 	return (fabs(ChassisSpeedRef.forward_back_ref)>=10 || fabs(ChassisSpeedRef.left_right_ref)>=10 || fabs(GimbalRef.yaw_speed_ref)>=10 || fabs(GimbalRef.pitch_speed_ref)>=10);
 }
 
-//ÊäÈëÄ£Ê½ÉèÖÃ 
+//è¾“å…¥æ¨¡å¼è®¾ç½®
 void SetInputMode(Remote *rc)
 {
 	if(rc->s2 == 1)
@@ -75,7 +75,7 @@ void SetInputMode(Remote *rc)
 	else if(rc->s2 == 2)
 	{
 		inputmode = STOP;
-	}	
+	}
 }
 
 InputMode_e GetInputMode()
@@ -86,24 +86,24 @@ InputMode_e GetInputMode()
 /*
 input: RemoteSwitch_t *sw, include the switch info
 */
-void RemoteShootControl(RemoteSwitch_t *sw, uint8_t val) 
+void RemoteShootControl(RemoteSwitch_t *sw, uint8_t val)
 {
 	GetRemoteSwitchAction(sw, val);
 	switch(friction_wheel_state)
 	{
 		case FRICTION_WHEEL_OFF:
 		{
-			if(sw->switch_value1 == REMOTE_SWITCH_CHANGE_3TO1)   //´Ó¹Ø±Õµ½start turning
+			if(sw->switch_value1 == REMOTE_SWITCH_CHANGE_3TO1)   //ä»å…³é—­åˆ°start turning
 			{
 				SetShootState(NOSHOOTING);
 				frictionRamp.ResetCounter(&frictionRamp);
-				friction_wheel_state = FRICTION_WHEEL_START_TURNNING;	 
-				LASER_ON(); 
-			}				 		
+				friction_wheel_state = FRICTION_WHEEL_START_TURNNING;
+				LASER_ON();
+			}
 		}break;
 		case FRICTION_WHEEL_START_TURNNING:
 		{
-			if(sw->switch_value1 == REMOTE_SWITCH_CHANGE_3TO1)   //¸ÕÆô¶¯¾Í±»¹Ø±Õ
+			if(sw->switch_value1 == REMOTE_SWITCH_CHANGE_3TO1)   //åˆšå¯åŠ¨å°±è¢«å…³é—­
 			{
 				LASER_OFF();
 				SetShootState(NOSHOOTING);
@@ -113,23 +113,23 @@ void RemoteShootControl(RemoteSwitch_t *sw, uint8_t val)
 			}
 			else
 			{
-				//Ä¦²ÁÂÖ¼ÓËÙ
-				
-				SetFrictionWheelSpeed(1000 + (FRICTION_WHEEL_MAX_DUTY-1000)*frictionRamp.Calc(&frictionRamp)); 
+				//æ‘©æ“¦è½®åŠ é€Ÿ
+
+				SetFrictionWheelSpeed(1000 + (FRICTION_WHEEL_MAX_DUTY-1000)*frictionRamp.Calc(&frictionRamp));
 				if(frictionRamp.IsOverflow(&frictionRamp))
 				{
-					friction_wheel_state = FRICTION_WHEEL_ON; 	
+					friction_wheel_state = FRICTION_WHEEL_ON;
 				}
-				
+
 			}
 		}break;
 		case FRICTION_WHEEL_ON:
 		{
-			if(sw->switch_value1 == REMOTE_SWITCH_CHANGE_3TO1)   //¹Ø±ÕÄ¦²ÁÂÖ
+			if(sw->switch_value1 == REMOTE_SWITCH_CHANGE_3TO1)   //å…³é—­æ‘©æ“¦è½®
 			{
 				LASER_OFF();
-				friction_wheel_state = FRICTION_WHEEL_OFF;				  
-				SetFrictionWheelSpeed(1000); 
+				friction_wheel_state = FRICTION_WHEEL_OFF;
+				SetFrictionWheelSpeed(1000);
 				frictionRamp.ResetCounter(&frictionRamp);
 				SetShootState(NOSHOOTING);
 			}
@@ -140,26 +140,26 @@ void RemoteShootControl(RemoteSwitch_t *sw, uint8_t val)
 			else
 			{
 				SetShootState(NOSHOOTING);
-			}					 
-		} break;				
+			}
+		} break;
 	}
 }
-	 
+
 void MouseShootControl(Mouse *mouse)
 {
-	int16_t closeDelayCount = 0;   //ÓÒ¼ü¹Ø±ÕÄ¦²ÁÂÖ3sÑÓÊ±¼ÆÊı
+	int16_t closeDelayCount = 0;   //å³é”®å…³é—­æ‘©æ“¦è½®3så»¶æ—¶è®¡æ•°
 	switch(friction_wheel_state)
 	{
 		case FRICTION_WHEEL_OFF:
 		{
-			if(mouse->last_press_r == 0 && mouse->press_r == 1)   //´Ó¹Ø±Õµ½start turning
+			if(mouse->last_press_r == 0 && mouse->press_r == 1)   //ä»å…³é—­åˆ°start turning
 			{
 				SetShootState(NOSHOOTING);
 				frictionRamp.ResetCounter(&frictionRamp);
-				friction_wheel_state = FRICTION_WHEEL_START_TURNNING;	 
-				LASER_ON(); 
+				friction_wheel_state = FRICTION_WHEEL_START_TURNNING;
+				LASER_ON();
 				closeDelayCount = 0;
-			}				 		
+			}
 		}break;
 		case FRICTION_WHEEL_START_TURNNING:
 		{
@@ -171,23 +171,23 @@ void MouseShootControl(Mouse *mouse)
 			{
 				closeDelayCount = 0;
 			}
-			if(closeDelayCount>50)   //¹Ø±ÕÄ¦²ÁÂÖ
+			if(closeDelayCount>50)   //å…³é—­æ‘©æ“¦è½®
 			{
 				LASER_OFF();
-				friction_wheel_state = FRICTION_WHEEL_OFF;				  
-				SetFrictionWheelSpeed(1000); 
+				friction_wheel_state = FRICTION_WHEEL_OFF;
+				SetFrictionWheelSpeed(1000);
 				frictionRamp.ResetCounter(&frictionRamp);
 				SetShootState(NOSHOOTING);
 			}
 			else
 			{
-				//Ä¦²ÁÂÖ¼ÓËÙ				
-				SetFrictionWheelSpeed(1000 + (FRICTION_WHEEL_MAX_DUTY-1000)*frictionRamp.Calc(&frictionRamp)); 
+				//æ‘©æ“¦è½®åŠ é€Ÿ
+				SetFrictionWheelSpeed(1000 + (FRICTION_WHEEL_MAX_DUTY-1000)*frictionRamp.Calc(&frictionRamp));
 				if(frictionRamp.IsOverflow(&frictionRamp))
 				{
-					friction_wheel_state = FRICTION_WHEEL_ON; 	
+					friction_wheel_state = FRICTION_WHEEL_ON;
 				}
-				
+
 			}
 		}break;
 		case FRICTION_WHEEL_ON:
@@ -200,25 +200,25 @@ void MouseShootControl(Mouse *mouse)
 			{
 				closeDelayCount = 0;
 			}
-			
-			if(closeDelayCount>50)   //¹Ø±ÕÄ¦²ÁÂÖ
+
+			if(closeDelayCount>50)   //å…³é—­æ‘©æ“¦è½®
 			{
 				LASER_OFF();
-				friction_wheel_state = FRICTION_WHEEL_OFF;				  
-				SetFrictionWheelSpeed(1000); 
+				friction_wheel_state = FRICTION_WHEEL_OFF;
+				SetFrictionWheelSpeed(1000);
 				frictionRamp.ResetCounter(&frictionRamp);
 				SetShootState(NOSHOOTING);
-			}			
-			else if(mouse->press_l== 1)  //°´ÏÂ×ó¼ü£¬Éä»÷
+			}
+			else if(mouse->press_l== 1)  //æŒ‰ä¸‹å·¦é”®ï¼Œå°„å‡»
 			{
-				SetShootState(SHOOTING);				
+				SetShootState(SHOOTING);
 			}
 			else
 			{
-				SetShootState(NOSHOOTING);				
-			}					 
-		} break;				
-	}	
+				SetShootState(NOSHOOTING);
+			}
+		} break;
+	}
 	mouse->last_press_r = mouse->press_r;
 }
 
@@ -228,72 +228,72 @@ void RemoteDataPrcess(uint8_t *pData)
     {
         return;
     }
-    
-    RC_CtrlData.rc.ch0 = ((int16_t)pData[0] | ((int16_t)pData[1] << 8)) & 0x07FF; 
+
+    RC_CtrlData.rc.ch0 = ((int16_t)pData[0] | ((int16_t)pData[1] << 8)) & 0x07FF;
     RC_CtrlData.rc.ch1 = (((int16_t)pData[1] >> 3) | ((int16_t)pData[2] << 5)) & 0x07FF;
     RC_CtrlData.rc.ch2 = (((int16_t)pData[2] >> 6) | ((int16_t)pData[3] << 2) |
                          ((int16_t)pData[4] << 10)) & 0x07FF;
     RC_CtrlData.rc.ch3 = (((int16_t)pData[4] >> 1) | ((int16_t)pData[5]<<7)) & 0x07FF;
-    
+
     RC_CtrlData.rc.s1 = ((pData[5] >> 4) & 0x000C) >> 2;
     RC_CtrlData.rc.s2 = ((pData[5] >> 4) & 0x0003);
 
     RC_CtrlData.mouse.x = ((int16_t)pData[6]) | ((int16_t)pData[7] << 8);
     RC_CtrlData.mouse.y = ((int16_t)pData[8]) | ((int16_t)pData[9] << 8);
-    RC_CtrlData.mouse.z = ((int16_t)pData[10]) | ((int16_t)pData[11] << 8);    
+    RC_CtrlData.mouse.z = ((int16_t)pData[10]) | ((int16_t)pData[11] << 8);
 
     RC_CtrlData.mouse.press_l = pData[12];
     RC_CtrlData.mouse.press_r = pData[13];
- 
+
     RC_CtrlData.key.v = ((int16_t)pData[14]);// | ((int16_t)pData[15] << 8);
-	
+
 	SetInputMode(&RC_CtrlData.rc);
-	
+
 	//RemoteControlProcess(&(RC_CtrlData.rc));
-	
+
 	switch(GetInputMode())
 	{
 		case REMOTE_INPUT:
 		{
-			//Ò£¿ØÆ÷¿ØÖÆÄ£Ê½
+			//é¥æ§å™¨æ§åˆ¶æ¨¡å¼
 			RemoteControlProcess(&(RC_CtrlData.rc));
 		}break;
 		case KEY_MOUSE_INPUT:
 		{
-			//Ò£¿ØÆ÷¿ØÖÆÄ£Ê½
+			//é¥æ§å™¨æ§åˆ¶æ¨¡å¼
 			MouseKeyControlProcess(&RC_CtrlData.mouse,&RC_CtrlData.key);
 		}break;
 		case STOP:
 		{
-			//½ô¼±Í£³µ
+			//ç´§æ€¥åœè½¦
 		}break;
 	}
 }
-//Ò£¿ØÆ÷¿ØÖÆÄ£Ê½´¦Àí
+//é¥æ§å™¨æ§åˆ¶æ¨¡å¼å¤„ç†
 void RemoteControlProcess(Remote *rc)
 {
     if(GetWorkState()!=PREPARE_STATE)
     {
         ChassisSpeedRef.forward_back_ref = (RC_CtrlData.rc.ch1 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_CHASSIS_SPEED_REF_FACT;
-        ChassisSpeedRef.left_right_ref   = (rc->ch0 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_CHASSIS_SPEED_REF_FACT; 
+        ChassisSpeedRef.left_right_ref   = (rc->ch0 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_CHASSIS_SPEED_REF_FACT;
     }
 
     if(GetWorkState() == NORMAL_STATE)
     {
         GimbalRef.pitch_angle_dynamic_ref += (rc->ch3 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_PITCH_ANGLE_INC_FACT;
-        GimbalRef.yaw_angle_dynamic_ref   += (rc->ch2 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_YAW_ANGLE_INC_FACT;      	
+        GimbalRef.yaw_angle_dynamic_ref   += (rc->ch2 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_YAW_ANGLE_INC_FACT;
 	}
-	
-	/* not used to control, just as a flag */ 
-    GimbalRef.pitch_speed_ref = rc->ch3 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET;    //speed_ref½ö×öÊäÈëÁ¿ÅĞ¶ÏÓÃ
+
+	/* not used to control, just as a flag */
+    GimbalRef.pitch_speed_ref = rc->ch3 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET;    //speed_refä»…åšè¾“å…¥é‡åˆ¤æ–­ç”¨
     GimbalRef.yaw_speed_ref   = (rc->ch2 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET);
 	GimbalAngleLimit();
-	//Ò£¿ØÆ÷²¦¸ËÊı¾İ´¦Àí	
+	//é¥æ§å™¨æ‹¨æ†æ•°æ®å¤„ç†
 	RemoteShootControl(&switch1, rc->s1);
-		
+
 
 }
-//¼üÅÌÊó±ê¿ØÖÆÄ£Ê½´¦Àí
+//é”®ç›˜é¼ æ ‡æ§åˆ¶æ¨¡å¼å¤„ç†
 void MouseKeyControlProcess(Mouse *mouse, Key *key)
 {
 	static uint16_t forward_back_speed = 0;
@@ -325,8 +325,8 @@ void MouseKeyControlProcess(Mouse *mouse, Key *key)
 			ChassisSpeedRef.forward_back_ref = 0;
 			FBSpeedRamp.ResetCounter(&FBSpeedRamp);
 		}
-		
-		
+
+
 		if(key->v & 0x04)  // key: d
 		{
 			ChassisSpeedRef.left_right_ref = -left_right_speed* LRSpeedRamp.Calc(&LRSpeedRamp);
@@ -344,20 +344,20 @@ void MouseKeyControlProcess(Mouse *mouse, Key *key)
 	//step2: gimbal ref calc
     if(GetWorkState() == NORMAL_STATE)
     {
-		VAL_LIMIT(mouse->x, -150, 150); 
-		VAL_LIMIT(mouse->y, -150, 150); 
-		
+		VAL_LIMIT(mouse->x, -150, 150);
+		VAL_LIMIT(mouse->y, -150, 150);
+
         GimbalRef.pitch_angle_dynamic_ref -= mouse->y* MOUSE_TO_PITCH_ANGLE_INC_FACT;  //(rc->ch3 - (int16_t)REMOTE_CONTROLLER_STICK_OFFSET) * STICK_TO_PITCH_ANGLE_INC_FACT;
         GimbalRef.yaw_angle_dynamic_ref   += mouse->x* MOUSE_TO_YAW_ANGLE_INC_FACT;
 
 	}
-	
-	/* not used to control, just as a flag */ 
-    GimbalRef.pitch_speed_ref = mouse->y;    //speed_ref½ö×öÊäÈëÁ¿ÅĞ¶ÏÓÃ
+
+	/* not used to control, just as a flag */
+    GimbalRef.pitch_speed_ref = mouse->y;    //speed_refä»…åšè¾“å…¥é‡åˆ¤æ–­ç”¨
     GimbalRef.yaw_speed_ref   = mouse->x;
-	GimbalAngleLimit();	
+	GimbalAngleLimit();
 	MouseShootControl(mouse);
-	
+
 }
 
 //
@@ -380,29 +380,29 @@ void SetFrictionState(FrictionWheelState_e v)
 {
 	friction_wheel_state = v;
 }
-//Ò£¿ØÆ÷ÊäÈëÖµÉèÖÃ£¬
+//é¥æ§å™¨è¾“å…¥å€¼è®¾ç½®ï¼Œ
 void GimbalAngleLimit()
 {
 	VAL_LIMIT(GimbalRef.pitch_angle_dynamic_ref, -PITCH_MAX+7, PITCH_MAX);
 	VAL_LIMIT(GimbalRef.yaw_angle_dynamic_ref, GMYPositionPID.fdb - 60, GMYPositionPID.fdb + 60);
 }
 
-//Ò£¿ØÆ÷Êı¾İ³õÊ¼»¯£¬Ğ±ÆÂº¯ÊıµÈµÄ³õÊ¼»¯
+//é¥æ§å™¨æ•°æ®åˆå§‹åŒ–ï¼Œæ–œå¡å‡½æ•°ç­‰çš„åˆå§‹åŒ–
 void RemoteTaskInit()
 {
-	//Ğ±ÆÂ³õÊ¼»¯
+	//æ–œå¡åˆå§‹åŒ–
 	frictionRamp.SetScale(&frictionRamp, FRICTION_RAMP_TICK_COUNT);
 	LRSpeedRamp.SetScale(&LRSpeedRamp, MOUSE_LR_RAMP_TICK_COUNT);
 	FBSpeedRamp.SetScale(&FBSpeedRamp, MOUSR_FB_RAMP_TICK_COUNT);
 	frictionRamp.ResetCounter(&frictionRamp);
 	LRSpeedRamp.ResetCounter(&LRSpeedRamp);
 	FBSpeedRamp.ResetCounter(&FBSpeedRamp);
-	//µ×ÅÌÔÆÌ¨¸ø¶¨Öµ³õÊ¼»¯
+	//åº•ç›˜äº‘å°ç»™å®šå€¼åˆå§‹åŒ–
 	GimbalRef.pitch_angle_dynamic_ref = 0.0f;
 	GimbalRef.yaw_angle_dynamic_ref = 0.0f;
 	ChassisSpeedRef.forward_back_ref = 0.0f;
 	ChassisSpeedRef.left_right_ref = 0.0f;
 	ChassisSpeedRef.rotate_ref = 0.0f;
-	//Ä¦²ÁÂÖÔËĞĞ×´Ì¬³õÊ¼»¯
+	//æ‘©æ“¦è½®è¿è¡ŒçŠ¶æ€åˆå§‹åŒ–
 	SetFrictionState(FRICTION_WHEEL_OFF);
 }

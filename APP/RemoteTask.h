@@ -9,7 +9,7 @@
 ****************************************************************************
 */
 //remote control parameters
-#define REMOTE_CONTROLLER_STICK_OFFSET      1024u   
+#define REMOTE_CONTROLLER_STICK_OFFSET      1024u
 
 #define STICK_TO_CHASSIS_SPEED_REF_FACT     0.45f
 #define STICK_TO_PITCH_ANGLE_INC_FACT       0.004f
@@ -29,22 +29,22 @@
 #define MOUSE_LR_RAMP_TICK_COUNT			50
 #define MOUSR_FB_RAMP_TICK_COUNT			60
 
-#define REMOTE_SWITCH_VALUE_UP         		0x01u  
+#define REMOTE_SWITCH_VALUE_UP         		0x01u
 #define REMOTE_SWITCH_VALUE_DOWN			0x02u
 #define REMOTE_SWITCH_VALUE_CENTRAL			0x03u
 
-#define REMOTE_SWITCH_CHANGE_1TO3      (uint8_t)((REMOTE_SWITCH_VALUE_UP << 2) | REMOTE_SWITCH_VALUE_CENTRAL)   
-#define REMOTE_SWITCH_CHANGE_2TO3      (uint8_t)((REMOTE_SWITCH_VALUE_DOWN << 2) | REMOTE_SWITCH_VALUE_CENTRAL)  
+#define REMOTE_SWITCH_CHANGE_1TO3      (uint8_t)((REMOTE_SWITCH_VALUE_UP << 2) | REMOTE_SWITCH_VALUE_CENTRAL)
+#define REMOTE_SWITCH_CHANGE_2TO3      (uint8_t)((REMOTE_SWITCH_VALUE_DOWN << 2) | REMOTE_SWITCH_VALUE_CENTRAL)
 #define REMOTE_SWITCH_CHANGE_3TO1      (uint8_t)((REMOTE_SWITCH_VALUE_CENTRAL << 2) | REMOTE_SWITCH_VALUE_UP)
 #define REMOTE_SWITCH_CHANGE_3TO2      (uint8_t)((REMOTE_SWITCH_VALUE_CENTRAL << 2) | REMOTE_SWITCH_VALUE_DOWN)
 
 #define REMOTE_SWITCH_CHANGE_1TO3TO2   (uint8_t)((REMOTE_SWITCH_VALUE_UP << 4) |\
                                                  (REMOTE_SWITCH_VALUE_CENTRAL << 2) |\
-                                                 (REMOTE_SWITCH_VALUE_DOWN))   
+                                                 (REMOTE_SWITCH_VALUE_DOWN))
 
 #define REMOTE_SWITCH_CHANGE_2TO3TO1   (uint8_t)((REMOTE_SWITCH_VALUE_DOWN << 4) |\
                                                  (REMOTE_SWITCH_VALUE_CENTRAL << 2) |\
-                                                 (REMOTE_SWITCH_VALUE_UP)) 
+                                                 (REMOTE_SWITCH_VALUE_UP))
 
 #define REMOTE_SWITCH_VALUE_BUF_DEEP   16u
 
@@ -71,7 +71,7 @@ typedef __packed struct
 	uint8_t last_press_r;
 	uint8_t press_l;
 	uint8_t press_r;
-}Mouse;	
+}Mouse;
 typedef	__packed struct
 {
 	uint16_t v;
@@ -92,7 +92,7 @@ typedef enum
 
 
 
-//ÊäÈëÄ£Ê½:Ò£¿ØÆ÷/¼üÅÌÊó±ê/Í£Ö¹ÔËÐÐ
+//è¾“å…¥æ¨¡å¼:é¥æŽ§å™¨/é”®ç›˜é¼ æ ‡/åœæ­¢è¿è¡Œ
 typedef enum
 {
 	REMOTE_INPUT = 1,
@@ -100,7 +100,7 @@ typedef enum
 	STOP = 2,
 }InputMode_e;
 
-//Ä¦²ÁÂÖ×´Ì¬Ã¶¾Ù
+//æ‘©æ“¦è½®çŠ¶æ€æžšä¸¾
 typedef enum
 {
 	FRICTION_WHEEL_OFF = 0,
@@ -108,12 +108,12 @@ typedef enum
 	FRICTION_WHEEL_ON = 2,
 }FrictionWheelState_e;
 
-//²¦¸Ë¶¯×÷Ã¶¾Ù
+//æ‹¨æ†åŠ¨ä½œæžšä¸¾
 typedef enum
 {
 	FROM1TO2,
 	FROM1TO3,
-	FROM2TO1, 
+	FROM2TO1,
 	FROM3TO1,
 	FROM3TO2,
 }RC_SWITCH_ACTION_e;
@@ -144,7 +144,7 @@ typedef struct RemoteSwitch_t
 	 uint8_t switch_value1;				  //  last value << 2 | value
 	 uint8_t switch_value2;				  //
 	 uint8_t switch_long_value; 		  //keep still if no switching
-	 uint8_t switch_value_buf[REMOTE_SWITCH_VALUE_BUF_DEEP]; 
+	 uint8_t switch_value_buf[REMOTE_SWITCH_VALUE_BUF_DEEP];
 	 uint8_t buf_index;
 	 uint8_t buf_last_index;
 	 uint8_t buf_end_index;
@@ -167,4 +167,3 @@ void RemoteControlProcess(Remote *rc);
 void MouseShootControl(Mouse *mouse);
 void MouseKeyControlProcess(Mouse *mouse, Key *key);
 #endif
-

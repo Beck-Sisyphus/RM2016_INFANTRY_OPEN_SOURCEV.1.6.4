@@ -2,14 +2,14 @@
 #define _CONTROL_TASK_H_
 #include "main.h"
 
-//initiate status: 
+//initiate status:
 typedef enum
 {
-    PREPARE_STATE,     		//ÉÏµçºó³õÊ¼»¯×´Ì¬ 4sÖÓ×óÓÒ
-    STANDBY_STATE,			//ÔÆÌ¨Í£Ö¹²»×ª×´Ì¬
-    NORMAL_STATE,			//ÎŞÊäÈë×´Ì¬
-    STOP_STATE,        	//Í£Ö¹ÔË¶¯×´Ì¬
-    CALI_STATE,    			//Ğ£×¼×´Ì¬
+    PREPARE_STATE,     		//ä¸Šç”µååˆå§‹åŒ–çŠ¶æ€ 4sé’Ÿå·¦å³
+    STANDBY_STATE,			//äº‘å°åœæ­¢ä¸è½¬çŠ¶æ€
+    NORMAL_STATE,			//æ— è¾“å…¥çŠ¶æ€
+    STOP_STATE,        	//åœæ­¢è¿åŠ¨çŠ¶æ€
+    CALI_STATE,    			//æ ¡å‡†çŠ¶æ€
 }WorkState_e;
 
 #define PREPARE_TIME_TICK_MS 4000      //prapare time in ms
@@ -160,7 +160,7 @@ typedef enum
 	&PID_Reset,\
 }\
 
-//D²ÎÊıÔ­À´Îª0.4
+//Då‚æ•°åŸæ¥ä¸º0.4
 #define CHASSIS_MOTOR_SPEED_PID_DEFAULT \
 {\
 	0,\
@@ -238,16 +238,16 @@ typedef enum
 	0,\
 }\
 
-extern PID_Regulator_t CMRotatePID;      		//µ×ÅÌ¸úËæÔÆÌ¨PID
-extern PID_Regulator_t GMPPositionPID;      	//pitchÖáÎ»ÖÃ»·PID
-extern PID_Regulator_t GMPSpeedPID;      		//pitchÖáËÙ¶È»»PID
-extern PID_Regulator_t GMYPositionPID;			//yawÖáÎ»ÖÃ»·PID
-extern PID_Regulator_t GMYSpeedPID;      		//yawÖáËÙ¶È»·PID
+extern PID_Regulator_t CMRotatePID;      		//åº•ç›˜è·Ÿéšäº‘å°PID
+extern PID_Regulator_t GMPPositionPID;      	//pitchè½´ä½ç½®ç¯PID
+extern PID_Regulator_t GMPSpeedPID;      		//pitchè½´é€Ÿåº¦æ¢PID
+extern PID_Regulator_t GMYPositionPID;			//yawè½´ä½ç½®ç¯PID
+extern PID_Regulator_t GMYSpeedPID;      		//yawè½´é€Ÿåº¦ç¯PID
 
-extern PID_Regulator_t ShootMotorPositionPID;    //Éä»÷µç»úÎ»ÖÃ»·PID
-extern PID_Regulator_t ShootMotorSpeedPID;       //Éä»÷µç»úËÙ¶È»·PID
+extern PID_Regulator_t ShootMotorPositionPID;    //å°„å‡»ç”µæœºä½ç½®ç¯PID
+extern PID_Regulator_t ShootMotorSpeedPID;       //å°„å‡»ç”µæœºé€Ÿåº¦ç¯PID
 
-extern PID_Regulator_t CM1SpeedPID;				 //µ×ÅÌµç»úËÙ¶È»·PID
+extern PID_Regulator_t CM1SpeedPID;				 //åº•ç›˜ç”µæœºé€Ÿåº¦ç¯PID
 extern PID_Regulator_t CM2SpeedPID;
 extern PID_Regulator_t CM3SpeedPID;
 extern PID_Regulator_t CM4SpeedPID;
@@ -260,7 +260,6 @@ void Control_Task(void);
 void GMPitchControlLoop(void);
 void GMYawControlLoop(void);
 void GMPitchControlLoop(void);
-void GimbalYawControlModeSwitch(void);   //Ä£Ê½ÇĞ»»´¦Àí£¬µÃµ½Î»ÖÃ»·µÄÉè¶¨ÖµºÍ¸ø¶¨Öµ
+void GimbalYawControlModeSwitch(void);   //æ¨¡å¼åˆ‡æ¢å¤„ç†ï¼Œå¾—åˆ°ä½ç½®ç¯çš„è®¾å®šå€¼å’Œç»™å®šå€¼
 void SetGimbalMotorOutput(void);
 #endif
-
