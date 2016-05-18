@@ -100,6 +100,7 @@ void ShooterMControlLoop(void)
 }
 static uint32_t time_tick_1ms = 0;
 //控制任务，放在timer6 1ms定时中断中执行
+// Control task running at timer 6 interrupt with 1ms 
 void Control_Task(void)
 {
 	time_tick_1ms++;
