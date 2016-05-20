@@ -6,18 +6,18 @@ void CAN2_Configuration(void);
 
 #define RATE_BUF_SIZE 6
 typedef struct{
-	int32_t raw_value;   									//±àÂëÆ÷²»¾­´¦ÀíµÄÔ­Ê¼Öµ
-	int32_t last_raw_value;								//ÉÏÒ»´ÎµÄ±àÂëÆ÷Ô­Ê¼Öµ
-	int32_t ecd_value;                       //¾­¹ı´¦ÀíºóÁ¬ĞøµÄ±àÂëÆ÷Öµ
-	int32_t diff;													//Á½´Î±àÂëÆ÷Ö®¼äµÄ²îÖµ
-	int32_t temp_count;                   //¼ÆÊıÓÃ
-	uint8_t buf_count;								//ÂË²¨¸üĞÂbufÓÃ
-	int32_t ecd_bias;											//³õÊ¼±àÂëÆ÷Öµ	
-	int32_t ecd_raw_rate;									//Í¨¹ı±àÂëÆ÷¼ÆËãµÃµ½µÄËÙ¶ÈÔ­Ê¼Öµ
-	int32_t rate_buf[RATE_BUF_SIZE];	//buf£¬for filter
-	int32_t round_cnt;										//È¦Êı
-	int32_t filter_rate;											//ËÙ¶È
-	float ecd_angle;											//½Ç¶È
+	int32_t raw_value;									// Raw reading from encoder without processing  //ç¼–ç å™¨ä¸ç»å¤„ç†çš„åŸå§‹å€¼
+	int32_t last_raw_value;							// Last reading from encoder without processing //ä¸Šä¸€æ¬¡çš„ç¼–ç å™¨åŸå§‹å€¼
+	int32_t ecd_value;									// Continous reading from encoder after processing //ç»è¿‡å¤„ç†åè¿ç»­çš„ç¼–ç å™¨å€¼
+	int32_t diff;												// The difference between two encoder reading   //ä¸¤æ¬¡ç¼–ç å™¨ä¹‹é—´çš„å·®å€¼
+	int32_t temp_count;									// count 																				//è®¡æ•°ç”¨
+	uint8_t buf_count;									// filter buffer updates 												//æ»¤æ³¢æ›´æ–°bufç”¨
+	int32_t ecd_bias;										// Initial encoder value												//åˆå§‹ç¼–ç å™¨å€¼
+	int32_t ecd_raw_rate;								// Valocity raw value calculated from encoder		//é€šè¿‡ç¼–ç å™¨è®¡ç®—å¾—åˆ°çš„é€Ÿåº¦åŸå§‹å€¼
+	int32_t rate_buf[RATE_BUF_SIZE];		// bufferï¼Œfor filter
+	int32_t round_cnt;									// round count																	//åœˆæ•°
+	int32_t filter_rate;								// velocity																			//é€Ÿåº¦
+	float ecd_angle;										// angle																				//è§’åº¦
 }Encoder;
 
-#endif 
+#endif
