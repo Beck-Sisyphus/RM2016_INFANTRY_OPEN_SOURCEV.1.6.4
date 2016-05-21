@@ -100,7 +100,7 @@ void ShooterMControlLoop(void)
 }
 static uint32_t time_tick_1ms = 0;
 //控制任务，放在timer6 1ms定时中断中执行
-// Control task running at timer 6 interrupt with 1ms 
+// Control task running at timer 6 interrupt with 1ms
 void Control_Task(void)
 {
 	time_tick_1ms++;
@@ -291,6 +291,7 @@ void GimbalYawControlModeSwitch(void)
 }
 
 //云台pitch轴控制程序
+// Gimbal pitch axis control loop
 void GMPitchControlLoop(void)
 {
 	GMPPositionPID.kp = PITCH_POSITION_KP_DEFAULTS + PitchPositionSavedPID.kp_offset;
@@ -302,8 +303,8 @@ void GMPitchControlLoop(void)
 	GMPSpeedPID.kd = PITCH_SPEED_KD_DEFAULTS + PitchSpeedSavedPID.kd_offset;
 
 	GMPPositionPID.ref = GimbalRef.pitch_angle_dynamic_ref;
-	GMPPositionPID.fdb = -GMPitchEncoder.ecd_angle * GMPitchRamp.Calc(&GMPitchRamp);    //加入斜坡函数
-	GMPPositionPID.Calc(&GMPPositionPID);   //得到pitch轴位置环输出控制量
+	GMPPositionPID.fdb = -GMPitchEncoder.ecd_angle * GMPitchRamp.Calc(&GMPitchRamp);    // Add slope function //加入斜坡函数
+	GMPPositionPID.Calc(&GMPPositionPID);   // Get pitch axis position loop output //得到pitch轴位置环输出控制量
 	//pitch speed control
 	GMPSpeedPID.ref = GMPPositionPID.output;
 	GMPSpeedPID.fdb = MPU6050_Real_Data.Gyro_Y;
@@ -330,6 +331,7 @@ void GMYawControlLoop(void)
 void SetGimbalMotorOutput(void)
 {
 	//云台控制输出
+  // Gimbal control value pass to CAN2
 	if((GetWorkState() == STOP_STATE) ||Is_Serious_Error() || GetWorkState() == CALI_STATE)
 	{
 		Set_Gimbal_Current(CAN2, 0, 0);     //yaw + pitch

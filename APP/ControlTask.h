@@ -161,6 +161,7 @@ typedef enum
 }\
 
 //D参数原来为0.4
+// D variable was 0.4
 #define CHASSIS_MOTOR_SPEED_PID_DEFAULT \
 {\
 	0,\
@@ -238,16 +239,16 @@ typedef enum
 	0,\
 }\
 
-extern PID_Regulator_t CMRotatePID;      		//底盘跟随云台PID
-extern PID_Regulator_t GMPPositionPID;      	//pitch轴位置环PID
-extern PID_Regulator_t GMPSpeedPID;      		//pitch轴速度换PID
-extern PID_Regulator_t GMYPositionPID;			//yaw轴位置环PID
-extern PID_Regulator_t GMYSpeedPID;      		//yaw轴速度环PID
+extern PID_Regulator_t CMRotatePID;         // Chassis followup on gimbal PID loop  //底盘跟随云台PID
+extern PID_Regulator_t GMPPositionPID;      // pitch axis position PID loop         //pitch轴位置环PID
+extern PID_Regulator_t GMPSpeedPID;      		// pitch axis velocity PID loop         //pitch轴速度换PID
+extern PID_Regulator_t GMYPositionPID;      // yaw axis position PID loop           //yaw轴位置环PID
+extern PID_Regulator_t GMYSpeedPID;         // yaw axis velocity PID loop           //yaw轴速度环PID
 
-extern PID_Regulator_t ShootMotorPositionPID;    //射击电机位置环PID
-extern PID_Regulator_t ShootMotorSpeedPID;       //射击电机速度环PID
+extern PID_Regulator_t ShootMotorPositionPID;// Shooting motor position PID loop    //射击电机位置环PID
+extern PID_Regulator_t ShootMotorSpeedPID;   // Shooting motor velocity PID loop    //射击电机速度环PID
 
-extern PID_Regulator_t CM1SpeedPID;				 //底盘电机速度环PID
+extern PID_Regulator_t CM1SpeedPID;          // Chassis motor velocity PID loop     //底盘电机速度环PID
 extern PID_Regulator_t CM2SpeedPID;
 extern PID_Regulator_t CM3SpeedPID;
 extern PID_Regulator_t CM4SpeedPID;
@@ -260,6 +261,9 @@ void Control_Task(void);
 void GMPitchControlLoop(void);
 void GMYawControlLoop(void);
 void GMPitchControlLoop(void);
-void GimbalYawControlModeSwitch(void);   //模式切换处理，得到位置环的设定值和给定值
+
+//模式切换处理，得到位置环的设定值和给定值
+// Mode switch process, to get the position target value and measured value
+void GimbalYawControlModeSwitch(void);
 void SetGimbalMotorOutput(void);
 #endif
