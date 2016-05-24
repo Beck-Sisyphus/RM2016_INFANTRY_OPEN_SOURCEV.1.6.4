@@ -100,39 +100,37 @@ void ShooterMControlLoop(void)
 }
 static uint32_t time_tick_1ms = 0;
 //控制任务，放在timer6 1ms定时中断中执行
-// Control task running at timer 6 interrupt with 1ms 
+// Control task running at timer 6 interrupt with 1ms
 void Control_Task(void)
 {
 	time_tick_1ms++;
 	WorkStateFSM();
 	WorkStateSwitchProcess();
-	//启动后根据磁力计的数据初始化四元数
-	if(time_tick_1ms <100)
-	{
-		Init_Quaternion();
-	}
+  //启动后根据磁力计的数据初始化四元数
+  // Initialize quaternion coordinate from magnetometer
+	if(time_tick_1ms <100) { Init_Quaternion(); }
 	//平台稳定启动后，复位陀螺仪模块
-	if(time_tick_1ms == PREPARE_TIME_TICK_MS/2)
-	{
-		GYRO_RST();
-	}
+  // Reset the gyroscope after the gimbal is stablized
+	if(time_tick_1ms == PREPARE_TIME_TICK_MS/2) { GYRO_RST(); }
 
-	//step 1: 云台控制
-	GimbalYawControlModeSwitch();   //模式切换处理，得到位置环的设定值和给定值
-	GMPitchControlLoop();
+  // Gimbal control
+  //模式切换处理，得到位置环的设定值和给定值
+  // Mode switch method, to get the target and measured value of position loop
+	GimbalYawControlModeSwitch();
+  GMPitchControlLoop();
 	GMYawControlLoop();
 	SetGimbalMotorOutput();
 	CalibrateLoop();   //校准任务，当接收到校准命令后才有效执行，否则直接跳过
-	//chassis motor control
+  //chassis motor control
 	if(time_tick_1ms%4 == 0)         //motor control frequency 4ms
 	{
-		//监控任务
+		// Supervise task //监控任务
 		SuperviseTask();
-		//底盘控制任务
+		// Chassis control task//底盘控制任务
 		CMControlLoop();
-		ShooterMControlLoop();       //发射机构控制任务
+    // Shooting mechanism control task//发射机构控制任务
+		ShooterMControlLoop();
 	}
-
 }
 /**********************************************************
 *工作状态切换状态机,与1ms定时中断同频率
@@ -211,7 +209,8 @@ void WorkStateFSM(void)
 
 static void WorkStateSwitchProcess(void)
 {
-	//如果从其他模式切换到prapare模式，要将一系列参数初始化
+	//如果从其他模式切换到prepare模式，要将一系列参数初始化
+  // If switch from other state to prepare state, initialize all parameters
 	if((lastWorkState != workState) && (workState == PREPARE_STATE))
 	{
 		ControtLoopTaskInit();
