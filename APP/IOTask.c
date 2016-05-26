@@ -6,15 +6,16 @@
 2、调用XXXCaliProcess,将接收到的校准数据保存到GyroCaliData、GimbalCaliData、MagCaliData等中
 3、校准完成后，调用SetCaliData(*v)，将校准数据保存到gAppParamStructFalsh中,并写入Flash中
 */
-AppParam_t gAppParamStruct;	//配置信息,这里保存着最新的校准值，并且与Flash中的内容同步
-static GyroCaliStruct_t GyroCaliData;        //保存校准陀螺仪偏差值
-static GimbalCaliStruct_t  GimbalCaliData;   //保存云台编码器偏差值
+AppParam_t gAppParamStruct;	// Setting information, saved the most recent calibration value //配置信息,这里保存着最新的校准值，并且与Flash中的内容同步
+static GyroCaliStruct_t GyroCaliData;        // Saved gyroscope calibrated difference       //保存校准陀螺仪偏差值
+static GimbalCaliStruct_t  GimbalCaliData;   // Saved //保存云台编码器偏差值
 static MagCaliStruct_t  MagCaliData;         //保存磁力计校准值
 PIDParamStruct_t PIDCaliData;  //保存pitch轴position校准值
 //这几个变量用于在实际程序中应用
-GimbalCaliStruct_t GimbalSavedCaliData;    	    //gimbal pitch yaw encoder offset
+// These struct are used in the application
+GimbalCaliStruct_t GimbalSavedCaliData;    	    //gimbal pitch yaw encoder offset // not used
 GyroCaliStruct_t GyroSavedCaliData;     	    //gyro offset data
-AccCaliStruct_t AccSavedCaliData;    	    	//ACC offset data
+AccCaliStruct_t AccSavedCaliData;    	    	//ACC offset data			// not used
 MagCaliStruct_t MagSavedCaliData;			    //Mag offset data
 PIDParamStruct_t PitchPositionSavedPID;        	//PID offset data
 PIDParamStruct_t PitchSpeedSavedPID;        	//PID offset data

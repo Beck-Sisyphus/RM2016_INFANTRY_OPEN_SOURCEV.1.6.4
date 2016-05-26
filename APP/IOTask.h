@@ -104,10 +104,10 @@ typedef __packed struct
     GyroCaliStruct_t   GyroCaliData;      //gyro offset data
     AccCaliStruct_t    AccCaliData;    		//ACC offset data
     MagCaliStruct_t    MagCaliData;				//Mag offset data
-	PIDParamStruct_t   PitchPositionPID;
-	PIDParamStruct_t   PitchSpeedPID;
-	PIDParamStruct_t   YawPositionPID;
-	PIDParamStruct_t   YawSpeedPID;
+  	PIDParamStruct_t   PitchPositionPID;
+  	PIDParamStruct_t   PitchSpeedPID;
+  	PIDParamStruct_t   YawPositionPID;
+  	PIDParamStruct_t   YawSpeedPID;
 }AppParam_t;
 //上传数据的类型
 typedef enum
