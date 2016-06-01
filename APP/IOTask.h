@@ -109,7 +109,9 @@ typedef __packed struct
   	PIDParamStruct_t   YawPositionPID;
   	PIDParamStruct_t   YawSpeedPID;
 }AppParam_t;
+
 //上传数据的类型
+// The type of uploaded data
 typedef enum
 {
 	REIMU = 1,
@@ -145,6 +147,7 @@ void GetAccCaliData(AccCaliStruct_t *cali_data);
 void GetMagCaliData(MagCaliStruct_t *cali_data);
 
 //读取calidata保存到gAppParamStruct中，并写入到Flash中
+// Read calidata, saved to gAppParamStruct, and write to the flash
 void SetGimbalCaliData(GimbalCaliStruct_t *cali_data);
 void SetGyroCaliData(GyroCaliStruct_t *cali_data);
 void SetAccCaliData(AccCaliStruct_t *cali_data);
